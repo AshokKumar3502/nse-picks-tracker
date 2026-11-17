@@ -94,6 +94,13 @@ table.ledger td{vertical-align:top}
 .ix .ch{font:500 13px var(--mono);font-variant-numeric:tabular-nums}
 .ix .mt{font:11px var(--mono);color:var(--muted);grid-column:1/-1}
 .ix svg{grid-row:2/4;grid-column:2;width:96px;height:38px;overflow:visible}
+[hidden]{display:none!important}
+.about{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r);padding:14px 18px}
+.about summary{cursor:pointer;font-weight:600}
+.about dl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 16px;margin:12px 0 2px;font-size:13px}
+.about dt{color:var(--muted);font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding-top:2px}
+.about dd{margin:0}
+@media (max-width:640px){.about dl{grid-template-columns:minmax(0,1fr)}.about dd{margin-bottom:6px}}
 .pos{color:var(--ok)}.neg{color:var(--bad)}.mut{color:var(--muted)}
 .chip{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11px;border:1px solid var(--line);color:var(--muted)}
 .chip.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
@@ -143,6 +150,16 @@ table.ledger td{vertical-align:top}
   </nav>
 
   <section class="sec" id="intraday" role="tabpanel" aria-labelledby="tab-intraday">
+    <details class="about" id="about-intraday" open>
+      <summary>How the intraday list is made</summary>
+      <dl>
+        <dt>Agent</dt><dd>Morning desk (india-desk, desk.py), run at about 9 AM when you type "run all agents", then the Judge (india-debate)</dd>
+        <dt>Stocks it looks at</dt><dd>About 218 F&amp;O stocks, the most traded names on NSE</dd>
+        <dt>Data</dt><dd>Previous close and 10 years of daily bars, NSE F&amp;O bhavcopy (futures buildup, option walls), delivery %, bulk and block deals, market regime, sector strength, overnight news</dd>
+        <dt>Rules</dt><dd>Points for trend, setups, strength vs NIFTY, sector, futures bets, big-buyer delivery; minus points for sellers waiting just above or a stretched price. Listed only with a clear 3-point lead, at most 2 per sector, results within 4 days left out. Top 5.</dd>
+        <dt>Your plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle, sell at the 3:15 PM price, 100 shares each</dd>
+      </dl>
+    </details>
     <div class="card">
       <div class="latest-head"><span class="when" id="i-when">—</span><span class="stamp"><i></i><span id="i-made">—</span></span><span class="note" id="i-latest-total"></span></div>
       <div class="picks" id="i-latest"></div>
@@ -168,6 +185,16 @@ table.ledger td{vertical-align:top}
   </section>
 
   <section class="sec" id="swing" role="tabpanel" aria-labelledby="tab-swing" hidden>
+    <details class="about" id="about-swing" open>
+      <summary>How the swing list is made</summary>
+      <dl>
+        <dt>Agents</dt><dd>Swing intel (swing_intel.py) ranks every stock, the swing checklist (india-swing, swing.py) checks its top 20, the Judge (india-debate) reviews them, and the tested swing rule (india-swing-desk) adds its own names. Run automatically at 7:50 PM on weekdays.</dd>
+        <dt>Stocks it looks at</dt><dd>All NIFTY 500 stocks</dd>
+        <dt>Data</dt><dd>Daily, weekly and monthly charts, relative strength vs NIFTY and the sector, volume and delivery, results calendar, quarterly results, promoter and bulk deals, market regime</dd>
+        <dt>Rules</dt><dd>A 100-point score picks the top 20; only names that pass all 11 swing safety checks (trend, setup, not stretched, enough trading, no results in the hold, loss fits the budget and more) make the list. The tested rule adds names from strong, strengthening sectors when NIFTY is above its 200-day average.</dd>
+        <dt>Your plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the first session after the list, track day 1 to day 5, sell at the day 5 close, 100 shares each</dd>
+      </dl>
+    </details>
     <div class="card">
       <div class="latest-head"><span class="when" id="s-when">—</span><span class="stamp"><i></i><span id="s-made">—</span></span><span class="note" id="s-latest-note"></span></div>
       <div class="picks" id="s-latest"></div>
