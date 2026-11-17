@@ -7,13 +7,13 @@
 <meta name="description" content="Every 9 AM intraday list and every evening swing list from an NSE research toolkit, with the time each was made and what each stock did afterwards.">
 <meta name="theme-color" content="#0f1714">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: a trading-desk ledger. Two tabs (intraday, swing); each opens on the latest list as cards, then tiles, a chart and the ledger of past lists. */
 :root{
   --bg:#f3f5f2; --panel:#ffffff; --raised:#fafbf9; --fg:#14201a; --muted:#5d6b63; --line:#dde3de;
   --ok:#0f8a52; --bad:#c43a3a; --warn:#b7791f; --accent:#1f5f8b; --grid:#e7ece8;
-  --display:"Instrument Serif",Georgia,serif; --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --display:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
   --r:10px; color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -328,6 +328,53 @@ dialog.chart[open]::backdrop{animation:fade .3s ease-out}
   .totop{width:42px;height:42px}
 }
 
+/* ===== fonts: Inter for reading data (tabular figures), Plex Mono only for small labels ===== */
+body{font-family:var(--body);font-feature-settings:"cv11","ss01";letter-spacing:-.003em}
+h1,.hero h1{font-weight:700;letter-spacing:-.035em;line-height:1.05}
+.grad{font-style:normal}
+.when{font-weight:600;letter-spacing:-.02em;font-size:clamp(20px,2.6vw,28px)}
+.big,.pick .res,.ix .lv{font-weight:650;font-weight:600;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.pick .res{font-size:24px}
+.ix .lv{font-size:clamp(22px,2.4vw,27px)}
+.ch-head h3{font-weight:700;font-size:22px;letter-spacing:-.02em}
+table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum","cv11"}
+.pick .px,.pick .why{font-family:var(--body);font-size:12px;font-variant-numeric:tabular-nums}
+.ix .ch{font-family:var(--body);font-weight:600;font-variant-numeric:tabular-nums}
+.ix .mt,.day-head span,.ch-info{font-family:var(--body);font-variant-numeric:tabular-nums}
+.stack .bot{color:var(--muted)}
+
+/* ===== search ===== */
+.search{position:relative;flex:1 1 280px;max-width:440px;margin-left:clamp(8px,3vw,32px)}
+.search > svg{position:absolute;left:12px;top:50%;width:17px;height:17px;transform:translateY(-50%);fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;pointer-events:none;transition:stroke .2s}
+.search input{width:100%;height:40px;padding:0 40px 0 38px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--fg);font:500 14px var(--body);box-shadow:var(--shadow);transition:border-color .2s,box-shadow .25s}
+.search input::placeholder{color:var(--muted);font-weight:400}
+.search input:focus{outline:none;border-color:color-mix(in srgb,var(--accent) 65%,var(--line));box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 16%,transparent)}
+.search:focus-within > svg{stroke:var(--accent)}
+.search input::-webkit-search-cancel-button{cursor:pointer}
+.search kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font:500 11px var(--mono);color:var(--muted);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:1px 6px;pointer-events:none;transition:opacity .2s}
+.search:focus-within kbd{opacity:0}
+.q-results{position:absolute;left:0;right:0;top:calc(100% + 8px);max-height:min(62vh,520px);overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lift);padding:6px;z-index:50;transform-origin:top center;animation:pop .22s var(--ease)}
+.q-group{padding:10px 10px 4px;display:flex;align-items:baseline;gap:8px;font-weight:700;letter-spacing:-.01em}
+.q-group span{font:500 11px var(--mono);color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.q-item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px 12px;width:100%;padding:9px 10px;border:0;border-radius:10px;background:none;color:var(--fg);text-align:left;cursor:pointer;font:inherit;transition:background-color .15s}
+.q-item:hover,.q-item[aria-selected="true"]{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.q-item .t{font:600 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:6px;background:color-mix(in srgb,var(--accent2) 14%,transparent);color:var(--accent2)}
+.q-item .t.i{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+.q-item .d{font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.q-item .d small{color:var(--muted);font-size:12px}
+.q-item .v{font-weight:600;font-size:13px;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;gap:8px}
+.q-item .v::after{content:"";width:7px;height:7px;border-right:2px solid var(--muted);border-top:2px solid var(--muted);transform:rotate(45deg);opacity:.6}
+.q-group mark,.q-item mark{background:none;color:var(--accent);text-decoration:underline 2px color-mix(in srgb,var(--accent) 55%,transparent);text-underline-offset:3px}
+.q-empty{padding:16px 12px;color:var(--muted);font-size:13px;line-height:1.5}
+.q-empty b{color:var(--fg)}
+@media (max-width:640px){
+  .brand span{display:none}
+  .search{margin-left:4px;max-width:none}
+  .search kbd{display:none}
+  .search input{height:38px;font-size:16px}
+  .q-results{position:fixed;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top,0px))}
+}
+
 </style>
 </head>
 <body>
@@ -339,6 +386,13 @@ dialog.chart[open]::backdrop{animation:fade .3s ease-out}
         <rect x="7" y="12" width="4" height="7" rx="1" fill="#fff"/><rect x="14" y="9" width="4" height="10" rx="1" fill="#fff"/><rect x="21" y="13" width="4" height="5" rx="1" fill="#fff" opacity=".85"/></svg>
       <span>NSE Picks <em>Tracker</em></span>
     </a>
+    <div class="search" id="search" role="search">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+      <input id="q" type="search" placeholder="Search a stock, e.g. INDIGO" autocomplete="off" spellcheck="false" aria-label="Search a stock"
+        role="combobox" aria-expanded="false" aria-controls="q-results" aria-autocomplete="list">
+      <kbd aria-hidden="true">/</kbd>
+      <div class="q-results" id="q-results" role="listbox" aria-label="Search results" hidden></div>
+    </div>
     <span class="live"><i></i>Updated every weekday</span>
     <button class="theme" id="theme" type="button" aria-label="Switch light or dark">
       <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
@@ -547,7 +601,10 @@ dialog.chart[open]::backdrop{animation:fade .3s ease-out}
 
   // ---------- design: sliding tab indicator, reveal on scroll, back to top
   document.documentElement.classList.add('js');
-  window.addEventListener('load', () => { if (/^#(intraday|swing)$/.test(location.hash)) window.scrollTo(0, 0); }, {once: true});   // open at the top, not at the tab anchor
+  window.addEventListener('load', () => {     // a fresh visit opens at the top, not at the tab anchor; a reload keeps its place
+    const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    if (/^#(intraday|swing)$/.test(location.hash) && (!nav || nav.type === 'navigate')) setTimeout(() => window.scrollTo(0, 0), 0);
+  }, {once: true});   // open at the top, not at the tab anchor
   const tabsNav = document.querySelector('.tabs');
   const syncTabs = () => { tabsNav.dataset.on = $('tab-swing').getAttribute('aria-selected') === 'true' ? 'swing' : 'intraday'; };
   new MutationObserver(syncTabs).observe($('tab-swing'), {attributes: true, attributeFilter: ['aria-selected']});
@@ -566,6 +623,63 @@ dialog.chart[open]::backdrop{animation:fade .3s ease-out}
   const onScroll = () => totop.classList.toggle('show', window.scrollY > 600);
   window.addEventListener('scroll', onScroll, {passive: true}); onScroll();
   totop.addEventListener('click', () => window.scrollTo({top: 0, behavior: motion ? 'smooth' : 'auto'}));
+
+  // ---------- search: every stock on every list, click to open its chart
+  (function () {
+    const q = $('q'), box = $('q-results');
+    let items = [], sel = -1;
+    const close = () => { box.hidden = true; q.setAttribute('aria-expanded', 'false'); sel = -1; };
+    const mark = (s, w) => { const i = s.indexOf(w), f = document.createDocumentFragment();
+      if (!w || i < 0) { f.append(s); return f; } const m = el('mark', '', s.slice(i, i + w.length)); f.append(s.slice(0, i), m, s.slice(i + w.length)); return f; };
+    function hilite(i) {
+      sel = i; items.forEach((b, k) => b.setAttribute('aria-selected', String(k === i)));
+      if (items[i]) { items[i].scrollIntoView({block: 'nearest'}); q.setAttribute('aria-activedescendant', items[i].id); }
+    }
+    function run() {
+      const w = q.value.trim().toUpperCase();
+      if (!w) { close(); return; }
+      const hits = ROWS.filter((r) => (r.symbol || '').toUpperCase().includes(w));
+      const bySym = new Map();
+      for (const r of hits) { if (!bySym.has(r.symbol)) bySym.set(r.symbol, []); bySym.get(r.symbol).push(r); }
+      const syms = [...bySym.keys()].sort((a, b) => (b.startsWith(w) - a.startsWith(w)) || a.localeCompare(b)).slice(0, 12);
+      box.replaceChildren(); items = [];
+      if (!syms.length) {
+        const e = el('div', 'q-empty'); e.append('No list has had ', el('b', '', q.value.trim().toUpperCase()), ' yet. Only stocks that made an intraday or swing list since 17 Nov 2026 are here.');
+        box.appendChild(e);
+      }
+      for (const s of syms) {
+        const rows = bySym.get(s).sort((a, b) => ((b.for_day || b.list_date) > (a.for_day || a.list_date) ? 1 : -1));
+        const g = el('div', 'q-group'); const nm = el('b'); nm.appendChild(mark(s, w)); g.append(nm, el('span', '', rows.length + (rows.length === 1 ? ' time' : ' times') + ' on a list'));
+        box.appendChild(g);
+        for (const r of rows) {
+          const mode = r.type === 'Intraday' ? 'i' : 's', n = N(r.profit_net);
+          const b = el('button', 'q-item'); b.type = 'button'; b.setAttribute('role', 'option'); b.id = 'q-opt-' + items.length;
+          const d = el('span', 'd');
+          d.append(mode === 'i' ? 'For ' + dlong(r.for_day) : 'Shortlisted ' + dlong(r.list_date), el('small', '', r.buy_price ? '  ·  bought ' + px(r.buy_price) : '  ·  not bought yet'));
+          const v = el('span', 'v ' + cls(n), n === null ? (r.verdict ? 'Judge ' + r.verdict : 'waiting') : inr(n));
+          b.append(el('span', 't' + (mode === 'i' ? ' i' : ''), mode === 'i' ? 'Intraday' : 'Swing'), d, v);
+          b.title = 'Open the candle chart';
+          b.addEventListener('mousedown', (e) => e.preventDefault());
+          b.addEventListener('click', () => { close(); openChart(r, mode); });
+          b.addEventListener('mousemove', () => hilite(items.indexOf(b)));
+          box.appendChild(b); items.push(b);
+        }
+      }
+      box.hidden = false; q.setAttribute('aria-expanded', 'true'); hilite(items.length ? 0 : -1);
+    }
+    q.addEventListener('input', run);
+    q.addEventListener('focus', () => { if (q.value.trim()) run(); });
+    q.addEventListener('blur', () => setTimeout(close, 120));
+    q.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' && items.length) { e.preventDefault(); hilite((sel + 1) % items.length); }
+      else if (e.key === 'ArrowUp' && items.length) { e.preventDefault(); hilite((sel - 1 + items.length) % items.length); }
+      else if (e.key === 'Enter' && items[sel]) { e.preventDefault(); items[sel].click(); }
+      else if (e.key === 'Escape') { if (!box.hidden) close(); else q.blur(); }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && !$('chart').open) { e.preventDefault(); q.focus(); }
+    });
+  })();
 
   // ---------- candle chart: click a stock name
   const chartCache = {};
