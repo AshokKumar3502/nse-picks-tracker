@@ -375,6 +375,39 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   .q-results{position:fixed;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top,0px))}
 }
 
+/* ===== chart: day's OHLC strip, markers, price tags; theme switch animation ===== */
+.ch-theme{width:36px;height:36px;margin-left:auto;box-shadow:none}
+.ch-theme + .ch-x{margin-left:0}
+.ch-ohlc{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:12px 16px 0}
+.ch-ohlc .st-title{grid-column:1/-1;font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ch-ohlc .st{display:grid;gap:2px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--raised);min-width:0;animation:rise .45s var(--ease) both}
+.ch-ohlc .st:nth-child(3){animation-delay:40ms}.ch-ohlc .st:nth-child(4){animation-delay:80ms}.ch-ohlc .st:nth-child(5){animation-delay:120ms}.ch-ohlc .st:nth-child(6){animation-delay:160ms}.ch-ohlc .st:nth-child(7){animation-delay:200ms}
+.ch-ohlc .k{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ch-ohlc b{font-size:15px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-ohlc small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-ohlc .st.pos b{color:var(--ok)}.ch-ohlc .st.neg b{color:var(--bad)}
+.ch-ohlc .st.pos{border-color:color-mix(in srgb,var(--ok) 30%,var(--line))}.ch-ohlc .st.neg{border-color:color-mix(in srgb,var(--bad) 30%,var(--line))}
+@media (max-width:760px){.ch-ohlc{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.ch-body .pin{font:600 11px var(--body);font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round}
+.ch-body .ptag text{font:600 10.5px var(--body);font-variant-numeric:tabular-nums}
+.ch-body svg *{transition:fill .45s ease,stroke .45s ease}
+.ch-info{padding-top:4px}
+.ch-legend i.box{width:10px;height:10px;border:0;border-radius:2px;background:currentColor}
+.ch-legend i.dot{width:9px;height:9px;border:0;border-radius:50%;background:currentColor}
+.ch-legend i.tri{width:0;height:0;border:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid currentColor}
+.ch-legend i.tri.dn{border-bottom:0;border-top:8px solid currentColor}
+@media (prefers-reduced-motion:no-preference){
+  .ch-body .cdl{transform-box:fill-box;transform-origin:center;animation:grow .5s var(--ease) both}
+  .ch-body .hl,.ch-body .ptag,.ch-body .daybox{animation:fade .5s .35s ease-out both}
+  .theme svg{animation:iconIn .5s var(--ease)}
+}
+@keyframes grow{from{transform:scaleY(0);opacity:0}to{transform:none;opacity:1}}
+@keyframes iconIn{from{transform:rotate(-120deg) scale(.3);opacity:0}to{transform:none;opacity:1}}
+/* theme switch: a circle reveals the new colours; older browsers fade the colours */
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-new(root){z-index:2}
+.theming,.theming *,.theming *::before,.theming *::after{transition:background-color .5s ease,color .5s ease,border-color .5s ease,fill .5s ease,stroke .5s ease,box-shadow .5s ease!important}
+
 </style>
 </head>
 <body>
@@ -504,8 +537,12 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 
 <button class="totop" id="totop" type="button" aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <dialog class="chart" id="chart" aria-labelledby="ch-title">
-  <div class="ch-head"><h3 id="ch-title">-</h3><span class="sub" id="ch-sub"></span><button class="ch-x" id="ch-close" type="button" aria-label="Close chart">&times;</button></div>
+  <div class="ch-head"><h3 id="ch-title">-</h3><span class="sub" id="ch-sub"></span><button class="theme ch-theme" id="ch-theme" type="button" aria-label="Switch light or dark">
+      <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg>
+    </button><button class="ch-x" id="ch-close" type="button" aria-label="Close chart">&times;</button></div>
   <div class="ch-tabs" id="ch-tabs" role="group" aria-label="Chart period"></div>
+  <div class="ch-ohlc" id="ch-ohlc" aria-label="The day's open, high, low and close"></div>
   <div class="ch-body" id="ch-body"></div>
   <div class="ch-info" id="ch-info" aria-live="polite"></div>
   <div class="ch-legend" id="ch-legend"></div>
@@ -531,14 +568,30 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 
   // theme toggle (remembered in this browser only)
   try { const t = localStorage.getItem('theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
-  $('theme').addEventListener('click', () => {
+  function applyTheme() {
     const dark = document.documentElement.getAttribute('data-theme') === 'dark' ||
       (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     const next = dark ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('theme', next); } catch (e) {}
     render();
-  });
+  }
+  function flipTheme(e) {
+    const bt = e.currentTarget.getBoundingClientRect();
+    const x = bt.left + bt.width / 2, y = bt.top + bt.height / 2;
+    if (!motion) { applyTheme(); return; }
+    if (!document.startViewTransition) {      // older browsers: colours fade instead
+      document.documentElement.classList.add('theming'); applyTheme();
+      setTimeout(() => document.documentElement.classList.remove('theming'), 600); return;
+    }
+    const rad = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    const vt = document.startViewTransition(applyTheme);
+    vt.ready.then(() => document.documentElement.animate(
+      {clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + rad + 'px at ' + x + 'px ' + y + 'px)']},
+      {duration: 650, easing: 'cubic-bezier(.2,.7,.2,1)', pseudoElement: '::view-transition-new(root)'})).catch(() => {});
+  }
+  $('theme').addEventListener('click', flipTheme);
+  $('ch-theme').addEventListener('click', flipTheme);
 
   // tabs, routed on #intraday / #swing
   function show(which) {
@@ -703,8 +756,9 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       .then((x) => { if (!x.ok) throw new Error('HTTP ' + x.status); return x.json(); }));
     p.then((doc) => {
       const views = [];
-      if (doc.m5 && day5 && doc.m5[day5]) views.push({id: 'm5', label: '5-min · ' + dshort(day5), bars: doc.m5[day5], intra: true, day: day5});
       const dly = doc.daily || [];
+      const di = dly.findIndex((b) => b[0] === day5);
+      if (doc.m5 && day5 && doc.m5[day5]) views.push({id: 'm5', label: '5-min · ' + dshort(day5), bars: doc.m5[day5], intra: true, day: day5, prev: di > 0 ? dly[di - 1][4] : null});
       for (const [n, lab] of [[22, '1 month'], [66, '3 months'], [130, '6 months']]) if (dly.length) views.push({id: 'd' + n, label: 'Daily · ' + lab, bars: dly.slice(-n), intra: false});
       if (!views.length) { $('ch-body').replaceChildren(el('p', 'note', 'No candles saved for this stock yet.')); return; }
       let cur = mode === 'i' && views[0].intra ? views[0] : (views.find((v) => v.id === 'd66') || views[0]);
@@ -718,21 +772,43 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   $('ch-close').addEventListener('click', closeChart);
   $('chart').addEventListener('click', (e) => { if (e.target === $('chart')) closeChart(); });
   function candles(view, r, mode) {
-    const host = $('ch-body'), W = Math.max(300, host.clientWidth - 20), H = Math.round(Math.min(460, Math.max(280, W * 0.5)));
-    const m = {t: 12, r: 64, b: 26, l: 8}, volH = Math.round(H * 0.16), ph = H - m.t - m.b - volH - 8;
+    const host = $('ch-body'), W = Math.max(300, host.clientWidth - 20), H = Math.round(Math.min(480, Math.max(300, W * 0.52)));
+    const m = {t: 24, r: 76, b: 26, l: 8}, volH = Math.round(H * 0.14), ph = H - m.t - m.b - volH - 12;
     const bars = view.bars.map((b) => ({k: b[0], o: b[1], h: b[2], l: b[3], c: b[4], v: b[5] || 0}));
+    const mark = view.intra ? null : (mode === 'i' ? r.for_day : (r.trade_on || r.buy_date));
+
+    // the day this chart is about: its open, high, low and close
+    let st;
+    if (view.intra) {
+      let hb = bars[0], lb = bars[0];
+      for (const b of bars) { if (b.h > hb.h) hb = b; if (b.l < lb.l) lb = b; }
+      st = {title: dlong(view.day), o: bars[0].o, h: hb.h, l: lb.l, c: bars[bars.length - 1].c, hb, lb, prev: view.prev};
+    } else {
+      const at = bars.findIndex((b) => b.k === mark), i = at >= 0 ? at : bars.length - 1, b = bars[i];
+      st = {title: (at >= 0 ? 'Buy day, ' : 'Latest day, ') + dlong(b.k), o: b.o, h: b.h, l: b.l, c: b.c, hb: b, lb: b, prev: i > 0 ? bars[i - 1].c : null};
+    }
+    const base = st.prev || st.o, chg = st.c - base, chgP = chg / base * 100;
+    const strip = $('ch-ohlc');
+    const stat = (lab, val, cl, sub) => { const d = el('div', 'st' + (cl ? ' ' + cl : '')); d.append(el('span', 'k', lab), el('b', '', val)); if (sub) d.appendChild(el('small', '', sub)); return d; };
+    strip.replaceChildren(el('div', 'st-title', st.title),
+      stat('Open', px(st.o)), stat('High', px(st.h), 'pos'), stat('Low', px(st.l), 'neg'), stat('Close', px(st.c), chg >= 0 ? 'pos' : 'neg'),
+      stat('Change', (chg >= 0 ? '+' : '−') + px(Math.abs(chg)).replace('₹', '₹'), chg >= 0 ? 'pos' : 'neg', pct(chgP) + (st.prev ? ' vs previous close' : ' vs open')),
+      stat('Range', px(st.h - st.l), '', pct((st.h - st.l) / st.l * 100).replace('+', '') + ' low to high'));
+
     const lines = [];
-    if (N(r.buy_price) !== null) lines.push({y: +r.buy_price, label: 'Bought ' + px(r.buy_price), col: 'var(--accent)'});
-    if (mode === 'i' && N(r.sell_price) !== null) lines.push({y: +r.sell_price, label: 'Sold ' + px(r.sell_price), col: 'var(--warn)'});
-    if (mode === 's' && N(r.plan_stop) !== null) lines.push({y: +r.plan_stop, label: 'Stop ' + px(r.plan_stop), col: 'var(--bad)'});
-    if (mode === 's' && N(r.plan_target) !== null) lines.push({y: +r.plan_target, label: 'Target ' + px(r.plan_target), col: 'var(--ok)'});
+    if (N(r.buy_price) !== null) lines.push({y: +r.buy_price, tag: 'B', label: 'Bought ' + px(r.buy_price), col: 'var(--accent)'});
+    if (mode === 'i' && N(r.sell_price) !== null) lines.push({y: +r.sell_price, tag: 'S', label: 'Sold ' + px(r.sell_price), col: 'var(--warn)'});
+    if (mode === 's' && N(r.plan_stop) !== null) lines.push({y: +r.plan_stop, tag: 'SL', label: 'Stop ' + px(r.plan_stop), col: 'var(--bad)'});
+    if (mode === 's' && N(r.plan_target) !== null) lines.push({y: +r.plan_target, tag: 'T', label: 'Target ' + px(r.plan_target), col: 'var(--ok)'});
     const lo = d3.min(bars, (b) => b.l), hi = d3.max(bars, (b) => b.h);
     const near = lines.filter((L) => L.y >= lo * 0.92 && L.y <= hi * 1.08);
-    const y = d3.scaleLinear().domain([Math.min(lo, ...near.map((L) => L.y)), Math.max(hi, ...near.map((L) => L.y))]).nice().range([m.t + ph, m.t]);
+    const y0 = Math.min(lo, ...near.map((L) => L.y)), y1 = Math.max(hi, ...near.map((L) => L.y)), pad = (y1 - y0) * 0.07 || y1 * 0.01;
+    const y = d3.scaleLinear().domain([y0 - pad, y1 + pad]).nice().range([m.t + ph, m.t]);
     const x = d3.scaleBand().domain(bars.map((b) => b.k)).range([m.l, W - m.r]).padding(0.25);
+    const cx = (b) => x(b.k) + x.bandwidth() / 2;
     const yv = d3.scaleLinear().domain([0, d3.max(bars, (b) => b.v) || 1]).range([H - m.b, H - m.b - volH]);
     const svg = d3.create('svg').attr('viewBox', '0 0 ' + W + ' ' + H).attr('role', 'img')
-      .attr('aria-label', r.symbol + ' candle chart, ' + view.label);
+      .attr('aria-label', r.symbol + ' candle chart, ' + view.label + '. ' + st.title + ': open ' + px(st.o) + ', high ' + px(st.h) + ', low ' + px(st.l) + ', close ' + px(st.c));
     svg.append('g').selectAll('line').data(y.ticks(6)).join('line')
       .attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--grid)');
     const every = Math.max(1, Math.ceil(bars.length / Math.max(3, Math.floor(W / 90))));
@@ -741,35 +817,71 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       .call(d3.axisBottom(x).tickValues(bars.map((b) => b.k).filter((k, i) => i % every === 0)).tickFormat(fmtK).tickSizeOuter(0));
     svg.append('g').attr('class', 'axis').attr('transform', 'translate(' + (W - m.r) + ',0)')
       .call(d3.axisRight(y).ticks(6).tickFormat((v) => v.toLocaleString('en-IN')).tickSizeOuter(0));
-    // the buy day on a daily chart, the 9:15 buy candle and the 3:10 sell candle on a 5-minute chart
-    const marks = view.intra ? ['09:15'].concat(mode === 'i' ? ['15:10'] : []) : [mode === 'i' ? r.for_day : (r.trade_on || r.buy_date)];
-    for (const k of marks) if (k && x(k) !== undefined) svg.append('rect').attr('x', x(k) - x.step() * x.padding() / 2).attr('width', x.step())
+    // shaded: the buy day on a daily chart, the 9:15 buy and 3:10 sell candles on a 5-minute chart
+    const shade = view.intra ? ['09:15'].concat(mode === 'i' ? ['15:10'] : []) : [mark];
+    for (const k of shade) if (k && x(k) !== undefined) svg.append('rect').attr('x', x(k) - x.step() * x.padding() / 2).attr('width', x.step())
       .attr('y', m.t).attr('height', H - m.t - m.b).attr('fill', 'var(--accent)').attr('opacity', 0.12);
     const up = (b) => b.c >= b.o, col = (b) => up(b) ? 'var(--ok)' : 'var(--bad)';
     svg.append('g').selectAll('rect').data(bars).join('rect').attr('x', (b) => x(b.k)).attr('width', x.bandwidth())
       .attr('y', (b) => yv(b.v)).attr('height', (b) => H - m.b - yv(b.v)).attr('fill', col).attr('opacity', 0.25);
-    const g = svg.append('g').selectAll('g').data(bars).join('g');
-    g.append('line').attr('x1', (b) => x(b.k) + x.bandwidth() / 2).attr('x2', (b) => x(b.k) + x.bandwidth() / 2)
-      .attr('y1', (b) => y(b.h)).attr('y2', (b) => y(b.l)).attr('stroke', col).attr('stroke-width', 1.2);
-    g.append('rect').attr('x', (b) => x(b.k)).attr('width', Math.max(1, x.bandwidth()))
-      .attr('y', (b) => y(Math.max(b.o, b.c))).attr('height', (b) => Math.max(1, Math.abs(y(b.o) - y(b.c)))).attr('fill', col);
+    // the day's open and close as dotted lines on a 5-minute chart
+    if (view.intra) for (const [v, c] of [[st.o, 'var(--muted)'], [st.c, chg >= 0 ? 'var(--ok)' : 'var(--bad)']])
+      svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(v)).attr('y2', y(v)).attr('stroke', c).attr('stroke-width', 1).attr('stroke-dasharray', '1.5 3.5').attr('opacity', 0.9);
     for (const L of near) svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(L.y)).attr('y2', y(L.y))
       .attr('stroke', L.col).attr('stroke-width', 1.4).attr('stroke-dasharray', '5 4');
+    const g = svg.append('g').selectAll('g').data(bars).join('g').attr('class', 'cdl')
+      .attr('style', (b, i) => 'animation-delay:' + Math.min(450, i * 6) + 'ms');
+    g.append('line').attr('x1', cx).attr('x2', cx).attr('y1', (b) => y(b.h)).attr('y2', (b) => y(b.l)).attr('stroke', col).attr('stroke-width', 1.2);
+    g.append('rect').attr('x', (b) => x(b.k)).attr('width', Math.max(1, x.bandwidth())).attr('rx', x.bandwidth() > 6 ? 1.5 : 0)
+      .attr('y', (b) => y(Math.max(b.o, b.c))).attr('height', (b) => Math.max(1, Math.abs(y(b.o) - y(b.c)))).attr('fill', col);
+    // the day's candle outlined on a daily chart
+    if (!view.intra) svg.append('rect').attr('class', 'daybox').attr('x', x(st.hb.k) - 3).attr('width', x.bandwidth() + 6)
+      .attr('y', y(st.h) - 3).attr('height', y(st.l) - y(st.h) + 6).attr('rx', 4).attr('fill', 'none').attr('stroke', 'var(--fg)').attr('stroke-width', 1.2).attr('opacity', 0.55);
+    // high and low markers with their prices
+    const anchor = (b) => cx(b) < m.l + 46 ? 'start' : cx(b) > W - m.r - 46 ? 'end' : 'middle';
+    const hl = svg.append('g').attr('class', 'hl');
+    const pin = (b, isHigh) => {
+      const X = cx(b), Y = isHigh ? y(st.h) - 5 : y(st.l) + 5, s = isHigh ? -1 : 1, c = isHigh ? 'var(--ok)' : 'var(--bad)';
+      hl.append('path').attr('d', 'M' + X + ' ' + Y + 'l-4.5 ' + (s * 7) + 'h9z').attr('fill', c);
+      hl.append('text').attr('x', X).attr('y', Y + s * 11 + (isHigh ? 0 : 8)).attr('text-anchor', anchor(b)).attr('fill', c).attr('class', 'pin')
+        .text((isHigh ? 'High ' : 'Low ') + px(isHigh ? st.h : st.l) + (view.intra ? ' · ' + time12(b.k) : ''));
+    };
+    pin(st.hb, true); pin(st.lb, false);
+    if (view.intra) {
+      const b0 = bars[0];
+      hl.append('circle').attr('cx', cx(b0)).attr('cy', y(st.o)).attr('r', 3.2).attr('fill', 'var(--panel)').attr('stroke', 'var(--fg)').attr('stroke-width', 1.4);
+    }
+    // price tags on the right edge: the day's open and close, and your plan's lines
+    const tags = [];
+    if (view.intra) tags.push({v: st.o, t: 'O', col: 'var(--muted)'});
+    tags.push({v: st.c, t: 'C', col: chg >= 0 ? 'var(--ok)' : 'var(--bad)'});
+    for (const L of near) tags.push({v: L.y, t: L.tag, col: L.col});
+    for (const T of tags) T.py = y(T.v);
+    tags.sort((a, b) => a.py - b.py);
+    for (let i = 1; i < tags.length; i++) if (tags[i].py - tags[i - 1].py < 17) tags[i].py = tags[i - 1].py + 17;
+    const tg = svg.append('g').selectAll('g').data(tags).join('g').attr('class', 'ptag').attr('transform', (T) => 'translate(' + (W - m.r + 3) + ',' + (T.py - 8) + ')');
+    tg.append('rect').attr('width', m.r - 5).attr('height', 16).attr('rx', 4).attr('fill', (T) => T.col);
+    tg.append('text').attr('x', 5).attr('y', 11.5).attr('fill', 'var(--panel)')
+      .text((T) => T.t + ' ' + (+T.v).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
     // hover or touch: that candle's open, high, low, close
     const info = $('ch-info'), cross = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--muted)').attr('stroke-dasharray', '2 3').attr('opacity', 0);
     const say = (b) => { info.textContent = (view.intra ? dshort(view.day) + ' ' + time12(b.k) : dlong(b.k)) +
       '  ·  O ' + px(b.o) + '  H ' + px(b.h) + '  L ' + px(b.l) + '  C ' + px(b.c) + (b.v ? '  ·  vol ' + b.v.toLocaleString('en-IN') : ''); };
     svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
       .on('pointermove pointerdown', (e) => { const [mx] = d3.pointer(e); const i = Math.max(0, Math.min(bars.length - 1, Math.floor((mx - m.l) / x.step())));
-        const b = bars[i]; cross.attr('x1', x(b.k) + x.bandwidth() / 2).attr('x2', x(b.k) + x.bandwidth() / 2).attr('opacity', 1); say(b); })
-      .on('pointerleave', () => { cross.attr('opacity', 0); say(bars[bars.length - 1]); });
-    say(bars[bars.length - 1]);
+        const b = bars[i]; cross.attr('x1', cx(b)).attr('x2', cx(b)).attr('opacity', 1); say(b); })
+      .on('pointerleave', () => { cross.attr('opacity', 0); info.textContent = 'Point at a candle to see its open, high, low and close.'; });
+    info.textContent = 'Point at a candle to see its open, high, low and close.';
     host.replaceChildren(svg.node());
-    const sw = (c, solid) => { const i = el('i'); if (solid) { i.style.borderTop = '8px solid ' + c; i.style.width = '10px'; } else i.style.color = c; return i; };
+    const sw = (c, kind) => { const i = el('i', kind); i.style.color = c; return i; };
     const leg = [];
-    for (const [c, txt] of [['var(--ok)', 'Up candle'], ['var(--bad)', 'Down candle']]) { const s = el('span'); s.append(sw(c, true), txt); leg.push(s); }
-    for (const L of lines) { const s = el('span'); s.append(sw(L.col, false), L.label + (near.includes(L) ? '' : ' (outside this view)')); leg.push(s); }
-    { const s = el('span'); s.append(sw('color-mix(in srgb,var(--accent) 30%,transparent)', true), view.intra ? (mode === 'i' ? 'Buy and sell candles' : 'Buy candle') : 'Buy day'); leg.push(s); }
+    const add = (c, kind, txt) => { const s = el('span'); s.append(sw(c, kind), txt); leg.push(s); };
+    add('var(--ok)', 'box', 'Up candle'); add('var(--bad)', 'box', 'Down candle');
+    add('var(--ok)', 'tri', 'Day high'); add('var(--bad)', 'tri dn', 'Day low');
+    if (view.intra) { add('var(--muted)', 'dot', 'O: day open'); }
+    add(chg >= 0 ? 'var(--ok)' : 'var(--bad)', 'dot', 'C: ' + (view.intra ? 'day close' : 'close'));
+    for (const L of lines) add(L.col, 'dash', L.tag + ': ' + L.label + (near.includes(L) ? '' : ' (outside this view)'));
+    add('color-mix(in srgb,var(--accent) 35%,transparent)', 'box', view.intra ? (mode === 'i' ? 'Buy and sell candles' : 'Buy candle') : 'Buy day');
     $('ch-legend').replaceChildren(...leg);
   }
   let rsz;
