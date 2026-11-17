@@ -77,6 +77,12 @@ td{padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
 tr:last-child td{border-bottom:0}
 .num{text-align:right}
 td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--body);font-size:12px}
+.stack .top{display:block}
+.stack .bot{display:block;font-size:11px}
+td.sym{font-weight:600;font-family:var(--body)}
+td.strong{font-weight:600}
+tr.total td{border-top:2px solid var(--line);font-weight:600;background:var(--panel)}
+table.ledger td{vertical-align:top}
 .pos{color:var(--ok)}.neg{color:var(--bad)}.mut{color:var(--muted)}
 .chip{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11px;border:1px solid var(--line);color:var(--muted)}
 .chip.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
@@ -128,22 +134,22 @@ td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--b
       <div class="latest-head"><span class="when" id="i-when">—</span><span class="stamp"><i></i><span id="i-made">—</span></span><span class="note" id="i-latest-total"></span></div>
       <div class="picks" id="i-latest"></div>
     </div>
+    <div class="card">
+      <h2>Intraday lists, day by day</h2>
+      <p class="note">Newest first. For each stock: the price when it was shortlisted (the previous close), that morning's open, where the fixed breakout rule bought and sold, the day's close, and the profit on 100 shares before and after Zerodha intraday charges. "No breakout" means the rule never bought.</p>
+      <div class="days" id="i-days-list"></div>
+      <button class="more" id="i-more" type="button">Show 10 more days</button>
+    </div>
     <div class="tiles">
-      <div class="tile" id="tile-i-total"><span class="label">Running total</span><span class="big" id="i-total">—</span><span class="sub">on ₹1 lakh a trade, after charges</span></div>
+      <div class="tile" id="tile-i-total"><span class="label">Running total</span><span class="big" id="i-total">—</span><span class="sub">100 shares a trade, after charges</span></div>
       <div class="tile" id="tile-i-up"><span class="label">Rose on the day</span><span class="big" id="i-up">—</span><span class="sub">open to close, of <b id="i-up-n">—</b> picks</span></div>
       <div class="tile"><span class="label">Breakout trades</span><span class="big" id="i-trades">—</span><span class="sub"><b id="i-wins">—</b> made money after charges</span></div>
       <div class="tile"><span class="label">Lists made</span><span class="big" id="i-days">—</span><span class="sub"><b id="i-live">—</b> live at 9 AM, the rest rebuilt later</span></div>
     </div>
     <div class="card">
       <h2>Running total, day by day</h2>
-      <p class="note">Each bullish name traded by one fixed rule: buy when a 5-minute candle closes above the first 15 minutes' high, stop at the middle of that range, target as far above as the stop is below, out by 3 PM. ₹1 lakh a trade, after Zerodha charges. Bars are each day's result; the line is the total.</p>
+      <p class="note">Each bullish name traded by one fixed rule: buy when a 5-minute candle closes above the first 15 minutes' high, stop at the middle of that range, target as far above as the stop is below, out by 3 PM. 100 shares a trade, after Zerodha charges. Bars are each day's result; the line is the total.</p>
       <div class="chart" id="i-curve"></div>
-    </div>
-    <div class="card">
-      <h2>Every intraday list</h2>
-      <p class="note">Newest first. Each list shows the day it was for and when it was made. Open is that morning's opening price; Day move is open to close.</p>
-      <div class="days" id="i-days-list"></div>
-      <button class="more" id="i-more" type="button">Show 10 more days</button>
     </div>
   </section>
 
@@ -151,6 +157,12 @@ td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--b
     <div class="card">
       <div class="latest-head"><span class="when" id="s-when">—</span><span class="stamp"><i></i><span id="s-made">—</span></span><span class="note" id="s-latest-note"></span></div>
       <div class="picks" id="s-latest"></div>
+    </div>
+    <div class="card">
+      <h2>Swing lists, day by day</h2>
+      <p class="note">Newest first. For each stock: the price when it was shortlisted (that day's close), the buy at the next morning's open, the closing price on each of the next 5 trading days with the change from the buy, and the profit on 100 shares sold at the 5th day's close (or the latest close while it runs), before and after delivery charges.</p>
+      <div class="days" id="s-days-list"></div>
+      <button class="more" id="s-more" type="button">Show 10 more lists</button>
     </div>
     <div class="tiles">
       <div class="tile" id="tile-s-d5"><span class="label">Average after 5 days</span><span class="big" id="s-d5">—</span><span class="sub">from the next open, before charges (<b id="s-d5-n">—</b> picks)</span></div>
@@ -163,19 +175,13 @@ td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--b
       <p class="note">Average move from the next morning's open to the close after 1, 2 and 5 sessions, and the share that were up. Before charges (about 0.25 % a round trip).</p>
       <div class="chart" id="s-hold"></div>
     </div>
-    <div class="card">
-      <h2>Every swing list</h2>
-      <p class="note">Newest first. Pick price is the close the list was made on; entry is the next open. Stop and target are shown where the checklist set them.</p>
-      <div class="days" id="s-days-list"></div>
-      <button class="more" id="s-more" type="button">Show 10 more lists</button>
-    </div>
   </section>
 
   <details class="foot">
     <summary>How these lists are made and scored</summary>
     <dl>
       <dt>Intraday list</dt><dd>The morning desk's bullish names, made before the 9:15 open from the previous close and overnight data, for that day only. Lists before 16 Nov 2026 were rebuilt later from each day's data, so they show no time.</dd>
-      <dt>Intraday result</dt><dd>One fixed breakout rule (above), ₹1 lakh a trade, after Zerodha intraday charges. "No breakout" means the rule never bought.</dd>
+      <dt>Intraday result</dt><dd>One fixed breakout rule (above), 100 shares a trade, after Zerodha intraday charges; the buy and sell prices include a small slippage. "No breakout" means the rule never bought.</dd>
       <dt>Swing list</dt><dd>Made after the close: the names that passed every swing safety check, plus any from the tested swing rule. Meant to be held 2 to 5 sessions.</dd>
       <dt>Judge</dt><dd>A fixed-rule check on each name: TAKE (no red flag), WAIT (3 or more warnings), SKIP (a hard red flag).</dd>
       <dt>Moves</dt><dd>From the entry (the next morning's open) to that close, before charges.</dd>
@@ -241,13 +247,13 @@ td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--b
   function intraSum() {
     const rows = ROWS.filter((r) => r.type === 'Intraday');
     const days = [...new Set(rows.map((r) => r.for_day))].sort();
-    const trades = rows.filter((r) => N(r.intraday_rupees) !== null);
+    const trades = rows.filter((r) => N(r.profit_net) !== null);
     const withDay = rows.filter((r) => N(r.day1_pct) !== null);
     const last = days[days.length - 1] || null;
     const lastRow = rows.find((r) => r.for_day === last) || {};
     return {days: days.length, live_days: new Set(rows.filter((r) => r.source === 'Live').map((r) => r.for_day)).size,
-      trades: trades.length, wins: trades.filter((r) => N(r.intraday_rupees) > 0).length,
-      rupees: trades.reduce((s, r) => s + N(r.intraday_rupees), 0), with_day: withDay.length,
+      trades: trades.length, wins: trades.filter((r) => N(r.profit_net) > 0).length,
+      rupees: trades.reduce((s, r) => s + N(r.profit_net), 0), with_day: withDay.length,
       up_pct: withDay.length ? Math.round(1000 * withDay.filter((r) => N(r.day1_pct) > 0).length / withDay.length) / 10 : null,
       last_day: last, last_made_on: lastRow.made_on, last_made_at: lastRow.made_at,
       prices_to: ROWS.map((r) => r.prices_to).filter(Boolean).sort().pop()};
@@ -257,7 +263,7 @@ td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--b
     for (const r of ROWS) {
       if (r.type !== 'Intraday' || !r.for_day || r.intraday_outcome === 'not scored yet') continue;
       const e = by.get(r.for_day) || {for_day: r.for_day, rupees: 0, trades: 0};
-      if (N(r.intraday_rupees) !== null) { e.rupees += N(r.intraday_rupees); e.trades += 1; }
+      if (N(r.profit_net) !== null) { e.rupees += N(r.profit_net); e.trades += 1; }
       by.set(r.for_day, e);
     }
     let tot = 0;
@@ -278,7 +284,7 @@ td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--b
 
   // ---------- cards
   function pickCard(r, mode) {
-    const val = mode === 'i' ? r.intraday_rupees : r.latest_pct;
+    const val = mode === 'i' ? r.profit_net : r.latest_pct;
     const main = val === null || val === undefined
       ? (mode === 'i' ? (r.intraday_outcome === 'not scored yet' ? 'waiting' : 'no breakout') : 'waiting')
       : (mode === 'i' ? inr(val) : pct(val));
@@ -288,7 +294,7 @@ td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--b
       el('span', 'px', mode === 'i' ? 'open ' + px(r.entry_price) + ' · day ' + pct(r.day1_pct)
                                     : 'entry ' + px(r.entry_price) + ' · ' + (r.sessions_after || 0) + ' of 5 days'),
       el('span', 'why', (r.verdict ? 'Judge ' + r.verdict + ' · ' : '') + (mode === 'i'
-        ? (N(r.intraday_rupees) !== null ? r.intraday_outcome + (r.entry_time ? ' (bought ' + r.entry_time + ')' : '') : (r.reason || ''))
+        ? (N(r.profit_net) !== null ? r.intraday_outcome + (r.entry_time ? ' (bought ' + r.entry_time + ')' : '') : (r.reason || ''))
         : (r.plan_stop ? 'stop ' + px(r.plan_stop) + ' · target ' + px(r.plan_target) : (r.reason || '')))));
     return c;
   }
@@ -301,42 +307,66 @@ td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--b
     const days = [...new Set(rows.map((r) => r[key]))].filter(Boolean).sort().reverse();
     $(mode + '-more').hidden = days.length <= limit[mode];
     if (!days.length) { box.replaceChildren(el('p', 'note', 'No list yet. The first one appears after the next run.')); return; }
-    const cols = mode === 'i'
-      ? [['rank', '#', 'num'], ['symbol', 'Stock'], ['pick_price', 'Prev close', 'num'], ['entry_price', 'Open', 'num'], ['day1_pct', 'Day move', 'num'], ['intraday_outcome', 'Breakout rule'], ['entry_time', 'Bought at'], ['intraday_rupees', 'Result (₹1 lakh)', 'num'], ['verdict', 'Judge'], ['reason', 'Why it was picked']]
-      : [['rank', '#', 'num'], ['symbol', 'Stock'], ['pick_price', 'Pick price', 'num'], ['entry_price', 'Entry', 'num'], ['day1_pct', 'Day 1', 'num'], ['day2_pct', 'Day 2', 'num'], ['day5_pct', 'Day 5', 'num'], ['latest_pct', 'Latest', 'num'], ['plan_stop', 'Stop', 'num'], ['plan_target', 'Target', 'num'], ['verdict', 'Judge'], ['status', 'Status'], ['reason', 'Why']];
+    const two = (top, bottom, cl) => { const td = el('td', 'num stack'); td.append(el('span', 'top', top), el('span', 'bot ' + (cl || ''), bottom)); return td; };
+    const chip = (v) => v ? el('span', 'chip ' + (v === 'TAKE' ? 'ok' : v === 'SKIP' ? 'bad' : 'warn'), v) : el('span', 'mut', '–');
     const out = [];
     for (const day of days.slice(0, limit[mode])) {
       const list = rows.filter((r) => r[key] === day).sort((a, b) => a.rank - b.rank);
+      const r0 = list[0];
+      const madeAt = r0.made_at ? time12(r0.made_at) + (r0.made_on && r0.made_on !== (mode === 'i' ? day : r0.list_date) ? ' on ' + dshort(r0.made_on) : '') : null;
       const d = el('div', 'day'), head = el('div', 'day-head');
-      const made = list[0].made_at ? 'list made ' + time12(list[0].made_at) + (list[0].made_on && list[0].made_on !== day ? ' on ' + dshort(list[0].made_on) : '') : 'rebuilt later from that day\'s data';
-      let sub;
-      if (mode === 'i') {
-        const sc = list.filter((r) => N(r.intraday_rupees) !== null);
-        sub = made + ' · ' + (list[0].intraday_outcome === 'not scored yet' ? 'not scored yet' : 'day result ' + inr(sc.reduce((a, r) => a + N(r.intraday_rupees), 0)) + ' on ' + sc.length + ' trades');
-      } else sub = made + ' · ' + list.length + ' picks';
-      head.append(el('b', '', mode === 'i' ? 'For ' + dlong(day) : 'Made ' + dlong(day) + ', for the next 2 to 5 days'), el('span', '', sub));
-      const t = el('table'), thead = el('thead'), hr = el('tr'), tb = el('tbody');
-      for (const [, label, c] of cols) hr.appendChild(el('th', c || '', label));
+      const title = mode === 'i' ? 'For ' + dlong(day) : 'Shortlisted ' + dlong(day) + ' · hold 2 to 5 days';
+      const sc = list.filter((r) => N(r.profit_net) !== null);
+      const tot = sc.reduce((a, r) => a + N(r.profit_net), 0);
+      head.append(el('b', '', title), el('span', '', (madeAt ? 'shortlisted at ' + madeAt : 'rebuilt later, no time') + ' · ' +
+        (sc.length ? 'total ' + inr(tot) + ' on ' + sc.length + (mode === 'i' ? ' trades' : ' stocks') + ' (100 shares each, after charges)' : (mode === 'i' && r0.intraday_outcome === 'not scored yet' ? 'scored after 3:45 PM' : 'no result yet'))));
+      const t = el('table', 'ledger'), thead = el('thead'), hr = el('tr'), tb = el('tbody');
+      let heads;
+      if (mode === 's') {
+        const dd = [1, 2, 3, 4, 5].map((k) => { const x = list.find((r) => r['day' + k + '_date']); return x ? dshort(x['day' + k + '_date']) : 'waiting'; });
+        heads = [['#', 'num'], ['Stock'], ['Shortlisted at', 'num'], ['Bought (next open)', 'num'],
+          ['Day 1 · ' + dd[0], 'num'], ['Day 2 · ' + dd[1], 'num'], ['Day 3 · ' + dd[2], 'num'], ['Day 4 · ' + dd[3], 'num'], ['Day 5 · ' + dd[4], 'num'],
+          ['Profit, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
+      } else {
+        heads = [['#', 'num'], ['Stock'], ['Shortlisted at', 'num'], ['Open', 'num'], ['Bought', 'num'], ['Sold', 'num'], ['Day close', 'num'],
+          ['Profit, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
+      }
+      for (const [label, c] of heads) hr.appendChild(el('th', c || '', label));
       thead.appendChild(hr);
       for (const r of list) {
         const tr = el('tr');
-        for (const [f, , c] of cols) {
-          const td = el('td', c || ''); const v = r[f];
-          if (f.endsWith('_pct')) { td.textContent = pct(v); td.classList.add(cls(v)); }
-          else if (f === 'intraday_rupees') { td.textContent = v === null || v === undefined ? '–' : inr(v); td.classList.add(cls(v)); }
-          else if (['pick_price', 'entry_price', 'plan_stop', 'plan_target'].includes(f)) td.textContent = px(v);
-          else if (f === 'verdict') { if (v) td.appendChild(el('span', 'chip ' + (v === 'TAKE' ? 'ok' : v === 'SKIP' ? 'bad' : 'warn'), v)); else td.textContent = '–'; }
-          else if (f === 'status') td.appendChild(el('span', 'chip ' + (v === 'Done' ? 'ok' : v === 'Running' ? 'warn' : ''), v === 'Done' ? 'Held 5 days' : v === 'Running' ? (r.sessions_after + ' of 5 days') : 'Waiting'));
-          else if (f === 'symbol') { td.textContent = v; td.style.fontWeight = '600'; }
-          else if (f === 'reason') { td.textContent = v || '–'; td.className = 'why'; }
-          else td.textContent = v === null || v === undefined || v === '' ? '–' : String(v);
-          tr.appendChild(td);
+        tr.append(el('td', 'num mut', String(r.rank)), el('td', 'sym', r.symbol));
+        tr.append(two(px(r.pick_price), madeAt ? (mode === 'i' ? 'prev close · ' : '') + madeAt : (mode === 'i' ? 'prev close' : 'close'), 'mut'));
+        if (mode === 's') {
+          tr.append(two(px(r.entry_price), r.entry_date ? dshort(r.entry_date) + ' open' : 'next open', 'mut'));
+          for (let k = 1; k <= 5; k++) {
+            const c = r['day' + k + '_close'];
+            tr.append(c === null || c === undefined ? two('–', 'waiting', 'mut') : two(px(c), pct(r['day' + k + '_pct']), cls(r['day' + k + '_pct'])));
+          }
+        } else {
+          tr.append(two(px(r.entry_price), 'at 9:15', 'mut'));
+          tr.append(r.rule_entry ? two(px(r.rule_entry), 'at ' + r.entry_time, 'mut') : two('–', r.intraday_outcome === 'not scored yet' ? 'not scored yet' : 'no breakout', 'mut'));
+          tr.append(r.rule_exit ? two(px(r.rule_exit), (r.exit_time ? 'at ' + r.exit_time + ' · ' : '') + (r.intraday_outcome || ''), r.intraday_outcome === 'target' ? 'pos' : r.intraday_outcome === 'stop' ? 'neg' : 'mut') : two('–', '', 'mut'));
+          tr.append(two(px(r.day1_close), pct(r.day1_pct), cls(r.day1_pct)));
         }
+        const g = el('td', 'num ' + cls(r.profit_gross), r.profit_gross === null || r.profit_gross === undefined ? '–' : inr(r.profit_gross));
+        const n = el('td', 'num strong ' + cls(r.profit_net), r.profit_net === null || r.profit_net === undefined ? '–' : inr(r.profit_net));
+        if (r.profit_basis && mode === 's') n.title = 'sold at the ' + r.profit_basis;
+        const j = el('td'); j.appendChild(chip(r.verdict));
+        tr.append(g, n, j);
         tb.appendChild(tr);
       }
+      if (sc.length) {
+        const tf = el('tr', 'total');
+        tf.append(el('td'), el('td', 'sym', 'Total'));
+        for (let k = 0; k < heads.length - 5; k++) tf.append(el('td'));
+        tf.append(el('td', 'num ' + cls(sc.reduce((a, r) => a + N(r.profit_gross), 0)), inr(sc.reduce((a, r) => a + N(r.profit_gross), 0))),
+          el('td', 'num strong ' + cls(tot), inr(tot)), el('td'));
+        tb.appendChild(tf);
+      }
       t.append(thead, tb);
-      const sc = el('div', 'scroll'); sc.appendChild(t);
-      d.append(head, sc);
+      const wrap = el('div', 'scroll'); wrap.appendChild(t);
+      d.append(head, wrap);
       out.push(d);
     }
     box.replaceChildren(...out);
@@ -415,14 +445,14 @@ td.why{white-space:normal;min-width:260px;color:var(--muted);font-family:var(--b
     const lede = $('lede'); lede.replaceChildren();
     const b = (t) => el('b', '', t), tx = (t) => document.createTextNode(t);
     lede.append(tx('The 9 AM intraday lists have '), b((I.rupees >= 0 ? 'made ' : 'lost ') + inr(Math.abs(I.rupees)).replace('+', '')),
-      tx(' in total over ' + I.trades + ' breakout trades on ' + I.days + ' days, at ₹1 lakh a trade after charges. The evening swing lists hold ' + S.picks + ' picks from ' + S.days + (S.days === 1 ? ' list; ' : ' lists; ')),
+      tx(' in total over ' + I.trades + ' breakout trades on ' + I.days + ' days, at 100 shares a trade after charges. The evening swing lists hold ' + S.picks + ' picks from ' + S.days + (S.days === 1 ? ' list; ' : ' lists; ')),
       S.with_d5 ? b('after 5 days they averaged ' + pct(S.avg_d5)) : tx('none has been held 5 days yet'), tx('.'));
     // intraday
     $('i-when').textContent = I.last_day ? 'Intraday list for ' + dlong(I.last_day) : '—';
     $('i-made').textContent = I.last_made_at ? 'made ' + time12(I.last_made_at) + (I.last_made_on && I.last_made_on !== I.last_day ? ' on ' + dshort(I.last_made_on) : '') : 'rebuilt later';
     const li = dayRows('Intraday', 'for_day', I.last_day);
-    const sc = li.filter((r) => N(r.intraday_rupees) !== null);
-    $('i-latest-total').textContent = li.length && li[0].intraday_outcome === 'not scored yet' ? 'Results after 3:45 PM' : 'Day result: ' + inr(sc.reduce((a, r) => a + N(r.intraday_rupees), 0)) + ' on ' + sc.length + ' breakout trades';
+    const sc = li.filter((r) => N(r.profit_net) !== null);
+    $('i-latest-total').textContent = li.length && li[0].intraday_outcome === 'not scored yet' ? 'Results after 3:45 PM' : 'Day result: ' + inr(sc.reduce((a, r) => a + N(r.profit_net), 0)) + ' on ' + sc.length + ' trades, 100 shares each, after charges';
     $('i-latest').replaceChildren(...li.map((r) => pickCard(r, 'i')));
     countUp($('i-total'), I.rupees, inr); countUp($('i-up'), I.up_pct, (v) => v.toFixed(1) + '%');
     $('i-up-n').textContent = I.with_day; countUp($('i-trades'), I.trades, (v) => String(Math.round(v)));
