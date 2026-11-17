@@ -102,6 +102,23 @@ table.ledger td{vertical-align:top}
 .about dt{color:var(--muted);font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding-top:2px}
 .about dd{margin:0}
 @media (max-width:640px){.about dl{grid-template-columns:minmax(0,1fr)}.about dd{margin-bottom:6px}}
+.symbtn{font:inherit;font-weight:600;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline dotted color-mix(in srgb,var(--accent) 60%,transparent);text-underline-offset:3px;text-align:left}
+.symbtn:hover{color:var(--accent)}.symbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.symbtn::after{content:" \25B8";font-size:.8em;color:var(--accent)}
+dialog.chart{width:min(980px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--fg);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog.chart::backdrop{background:rgba(0,0,0,.45)}
+.ch-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.ch-head h3{margin:0;font-size:18px}.ch-head .sub{color:var(--muted);font-size:12px;flex:1 1 220px}
+.ch-x{margin-left:auto;font-size:22px;line-height:1;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 8px}
+.ch-tabs{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px 0}
+.ch-tabs button{font:500 12px var(--mono);padding:5px 10px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--fg);cursor:pointer}
+.ch-tabs button[aria-pressed="true"]{background:var(--fg);color:var(--panel);border-color:var(--fg)}
+.ch-body{position:relative;padding:8px 10px 6px}
+.ch-body svg{display:block;width:100%;height:auto;touch-action:pan-y}
+.ch-body .axis text{fill:var(--muted);font:11px var(--mono)}.ch-body .axis path,.ch-body .axis line{stroke:var(--line)}
+.ch-info{min-height:20px;padding:0 16px;font:12px var(--mono);color:var(--muted)}
+.ch-legend{display:flex;flex-wrap:wrap;gap:6px 16px;padding:6px 16px 14px;font-size:12px;color:var(--muted)}
+.ch-legend i{display:inline-block;width:16px;height:0;border-top:2px dashed currentColor;vertical-align:middle;margin-right:5px}
 .pos{color:var(--ok)}.neg{color:var(--bad)}.mut{color:var(--muted)}
 .chip{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11px;border:1px solid var(--line);color:var(--muted)}
 .chip.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
@@ -234,6 +251,13 @@ table.ledger td{vertical-align:top}
   </details>
 </div>
 
+<dialog class="chart" id="chart" aria-labelledby="ch-title">
+  <div class="ch-head"><h3 id="ch-title">-</h3><span class="sub" id="ch-sub"></span><button class="ch-x" id="ch-close" type="button" aria-label="Close chart">&times;</button></div>
+  <div class="ch-tabs" id="ch-tabs" role="group" aria-label="Chart period"></div>
+  <div class="ch-body" id="ch-body"></div>
+  <div class="ch-info" id="ch-info" aria-live="polite"></div>
+  <div class="ch-legend" id="ch-legend"></div>
+</dialog>
 <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
 <script>
 (function () {
@@ -323,6 +347,100 @@ table.ledger td{vertical-align:top}
   }
   const dayRows = (type, key, day) => ROWS.filter((r) => r.type === type && r[key] === day).sort((a, b) => a.rank - b.rank);
 
+  // ---------- candle chart: click a stock name
+  const chartCache = {};
+  function symBtn(r, mode, text, extra) {
+    const b = el('button', 'symbtn' + (extra ? ' ' + extra : ''), text);
+    b.type = 'button'; b.title = 'Open the candle chart of ' + r.symbol;
+    b.addEventListener('click', () => openChart(r, mode));
+    return b;
+  }
+  const closeChart = () => { const d = $('chart'); if (d.close) d.close(); else d.removeAttribute('open'); };
+  function openChart(r, mode) {
+    const dlg = $('chart'), day5 = mode === 'i' ? r.for_day : (r.trade_on || r.buy_date);
+    $('ch-title').textContent = r.symbol;
+    $('ch-sub').textContent = (mode === 'i' ? 'Intraday pick for ' + dlong(r.for_day) : 'Swing pick, shortlisted ' + dlong(r.list_date)) +
+      (r.buy_price ? ' · bought ' + px(r.buy_price) : '') + (mode === 'i' && r.sell_price ? ' · sold ' + px(r.sell_price) : '');
+    $('ch-body').replaceChildren(el('p', 'note', 'Loading the chart...'));
+    $('ch-tabs').replaceChildren(); $('ch-info').textContent = ''; $('ch-legend').replaceChildren();
+    if (dlg.showModal) { if (!dlg.open) dlg.showModal(); } else dlg.setAttribute('open', '');
+    const file = r.symbol.replace(/&/g, '_');
+    const p = chartCache[file] || (chartCache[file] = fetch('data/charts/' + encodeURIComponent(file) + '.json?v=' + Date.now(), {cache: 'no-store'})
+      .then((x) => { if (!x.ok) throw new Error('HTTP ' + x.status); return x.json(); }));
+    p.then((doc) => {
+      const views = [];
+      if (doc.m5 && day5 && doc.m5[day5]) views.push({id: 'm5', label: '5-min · ' + dshort(day5), bars: doc.m5[day5], intra: true, day: day5});
+      const dly = doc.daily || [];
+      for (const [n, lab] of [[22, '1 month'], [66, '3 months'], [130, '6 months']]) if (dly.length) views.push({id: 'd' + n, label: 'Daily · ' + lab, bars: dly.slice(-n), intra: false});
+      if (!views.length) { $('ch-body').replaceChildren(el('p', 'note', 'No candles saved for this stock yet.')); return; }
+      let cur = mode === 'i' && views[0].intra ? views[0] : (views.find((v) => v.id === 'd66') || views[0]);
+      const tabs = views.map((v) => { const b = el('button', '', v.label); b.type = 'button';
+        b.addEventListener('click', () => { cur = v; paint(); }); return [v, b]; });
+      $('ch-tabs').replaceChildren(...tabs.map((x) => x[1]));
+      function paint() { for (const [v, b] of tabs) b.setAttribute('aria-pressed', String(v === cur)); candles(cur, r, mode); }
+      paint();
+    }).catch((e) => { delete chartCache[file]; $('ch-body').replaceChildren(el('p', 'note', 'The chart could not be loaded (' + e.message + ').')); });
+  }
+  $('ch-close').addEventListener('click', closeChart);
+  $('chart').addEventListener('click', (e) => { if (e.target === $('chart')) closeChart(); });
+  function candles(view, r, mode) {
+    const host = $('ch-body'), W = Math.max(300, host.clientWidth - 20), H = Math.round(Math.min(460, Math.max(280, W * 0.5)));
+    const m = {t: 12, r: 64, b: 26, l: 8}, volH = Math.round(H * 0.16), ph = H - m.t - m.b - volH - 8;
+    const bars = view.bars.map((b) => ({k: b[0], o: b[1], h: b[2], l: b[3], c: b[4], v: b[5] || 0}));
+    const lines = [];
+    if (N(r.buy_price) !== null) lines.push({y: +r.buy_price, label: 'Bought ' + px(r.buy_price), col: 'var(--accent)'});
+    if (mode === 'i' && N(r.sell_price) !== null) lines.push({y: +r.sell_price, label: 'Sold ' + px(r.sell_price), col: 'var(--warn)'});
+    if (mode === 's' && N(r.plan_stop) !== null) lines.push({y: +r.plan_stop, label: 'Stop ' + px(r.plan_stop), col: 'var(--bad)'});
+    if (mode === 's' && N(r.plan_target) !== null) lines.push({y: +r.plan_target, label: 'Target ' + px(r.plan_target), col: 'var(--ok)'});
+    const lo = d3.min(bars, (b) => b.l), hi = d3.max(bars, (b) => b.h);
+    const near = lines.filter((L) => L.y >= lo * 0.92 && L.y <= hi * 1.08);
+    const y = d3.scaleLinear().domain([Math.min(lo, ...near.map((L) => L.y)), Math.max(hi, ...near.map((L) => L.y))]).nice().range([m.t + ph, m.t]);
+    const x = d3.scaleBand().domain(bars.map((b) => b.k)).range([m.l, W - m.r]).padding(0.25);
+    const yv = d3.scaleLinear().domain([0, d3.max(bars, (b) => b.v) || 1]).range([H - m.b, H - m.b - volH]);
+    const svg = d3.create('svg').attr('viewBox', '0 0 ' + W + ' ' + H).attr('role', 'img')
+      .attr('aria-label', r.symbol + ' candle chart, ' + view.label);
+    svg.append('g').selectAll('line').data(y.ticks(6)).join('line')
+      .attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y).attr('stroke', 'var(--grid)');
+    const every = Math.max(1, Math.ceil(bars.length / Math.max(3, Math.floor(W / 90))));
+    const fmtK = (k) => view.intra ? time12(k) : d3.utcFormat('%d %b')(pdate(k));
+    svg.append('g').attr('class', 'axis').attr('transform', 'translate(0,' + (H - m.b) + ')')
+      .call(d3.axisBottom(x).tickValues(bars.map((b) => b.k).filter((k, i) => i % every === 0)).tickFormat(fmtK).tickSizeOuter(0));
+    svg.append('g').attr('class', 'axis').attr('transform', 'translate(' + (W - m.r) + ',0)')
+      .call(d3.axisRight(y).ticks(6).tickFormat((v) => v.toLocaleString('en-IN')).tickSizeOuter(0));
+    // the buy day on a daily chart, the 9:15 buy candle and the 3:10 sell candle on a 5-minute chart
+    const marks = view.intra ? ['09:15'].concat(mode === 'i' ? ['15:10'] : []) : [mode === 'i' ? r.for_day : (r.trade_on || r.buy_date)];
+    for (const k of marks) if (k && x(k) !== undefined) svg.append('rect').attr('x', x(k) - x.step() * x.padding() / 2).attr('width', x.step())
+      .attr('y', m.t).attr('height', H - m.t - m.b).attr('fill', 'var(--accent)').attr('opacity', 0.12);
+    const up = (b) => b.c >= b.o, col = (b) => up(b) ? 'var(--ok)' : 'var(--bad)';
+    svg.append('g').selectAll('rect').data(bars).join('rect').attr('x', (b) => x(b.k)).attr('width', x.bandwidth())
+      .attr('y', (b) => yv(b.v)).attr('height', (b) => H - m.b - yv(b.v)).attr('fill', col).attr('opacity', 0.25);
+    const g = svg.append('g').selectAll('g').data(bars).join('g');
+    g.append('line').attr('x1', (b) => x(b.k) + x.bandwidth() / 2).attr('x2', (b) => x(b.k) + x.bandwidth() / 2)
+      .attr('y1', (b) => y(b.h)).attr('y2', (b) => y(b.l)).attr('stroke', col).attr('stroke-width', 1.2);
+    g.append('rect').attr('x', (b) => x(b.k)).attr('width', Math.max(1, x.bandwidth()))
+      .attr('y', (b) => y(Math.max(b.o, b.c))).attr('height', (b) => Math.max(1, Math.abs(y(b.o) - y(b.c)))).attr('fill', col);
+    for (const L of near) svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(L.y)).attr('y2', y(L.y))
+      .attr('stroke', L.col).attr('stroke-width', 1.4).attr('stroke-dasharray', '5 4');
+    // hover or touch: that candle's open, high, low, close
+    const info = $('ch-info'), cross = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--muted)').attr('stroke-dasharray', '2 3').attr('opacity', 0);
+    const say = (b) => { info.textContent = (view.intra ? dshort(view.day) + ' ' + time12(b.k) : dlong(b.k)) +
+      '  ·  O ' + px(b.o) + '  H ' + px(b.h) + '  L ' + px(b.l) + '  C ' + px(b.c) + (b.v ? '  ·  vol ' + b.v.toLocaleString('en-IN') : ''); };
+    svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', W - m.l - m.r).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+      .on('pointermove pointerdown', (e) => { const [mx] = d3.pointer(e); const i = Math.max(0, Math.min(bars.length - 1, Math.floor((mx - m.l) / x.step())));
+        const b = bars[i]; cross.attr('x1', x(b.k) + x.bandwidth() / 2).attr('x2', x(b.k) + x.bandwidth() / 2).attr('opacity', 1); say(b); })
+      .on('pointerleave', () => { cross.attr('opacity', 0); say(bars[bars.length - 1]); });
+    say(bars[bars.length - 1]);
+    host.replaceChildren(svg.node());
+    const sw = (c, solid) => { const i = el('i'); if (solid) { i.style.borderTop = '8px solid ' + c; i.style.width = '10px'; } else i.style.color = c; return i; };
+    const leg = [];
+    for (const [c, txt] of [['var(--ok)', 'Up candle'], ['var(--bad)', 'Down candle']]) { const s = el('span'); s.append(sw(c, true), txt); leg.push(s); }
+    for (const L of lines) { const s = el('span'); s.append(sw(L.col, false), L.label + (near.includes(L) ? '' : ' (outside this view)')); leg.push(s); }
+    { const s = el('span'); s.append(sw('color-mix(in srgb,var(--accent) 30%,transparent)', true), view.intra ? (mode === 'i' ? 'Buy and sell candles' : 'Buy candle') : 'Buy day'); leg.push(s); }
+    $('ch-legend').replaceChildren(...leg);
+  }
+  let rsz;
+  window.addEventListener('resize', () => { clearTimeout(rsz); rsz = setTimeout(() => { const on = $('ch-tabs').querySelector('[aria-pressed="true"]'); if ($('chart').open && on) on.click(); }, 150); });
+
   // ---------- cards
   function pickCard(r, mode) {
     const val = r.profit_net;
@@ -331,7 +449,7 @@ table.ledger td{vertical-align:top}
       : inr(val);
     const n = N(val);
     const c = el('div', 'pick' + (n === null ? '' : n > 0 ? ' up' : ' down'));
-    c.append(el('span', 'sym', r.rank + '. ' + r.symbol), el('span', 'res ' + cls(val), main),
+    c.append(symBtn(r, mode, r.rank + '. ' + r.symbol, 'sym'), el('span', 'res ' + cls(val), main),
       el('span', 'px', mode === 'i' ? 'bought ' + px(r.buy_price) + ' · sold ' + px(r.sell_price)
                                     : 'bought ' + px(r.buy_price) + ' · ' + (r.sessions_after || 0) + ' of 5 days'),
       el('span', 'why', (r.verdict ? 'Judge ' + r.verdict + ' · ' : '') + (mode === 'i'
@@ -371,7 +489,7 @@ table.ledger td{vertical-align:top}
     thead.appendChild(hr);
     for (const r of list) {
       const tr = el('tr');
-      tr.append(el('td', 'num mut', String(r.rank)), el('td', 'sym', r.symbol));
+      const sc = el('td', 'sym'); sc.appendChild(symBtn(r, mode, r.symbol)); tr.append(el('td', 'num mut', String(r.rank)), sc);
       tr.append(two(px(r.pick_price), (mode === 'i' ? 'prev close' : 'close') + (madeAt ? ' · ' + madeAt : ''), 'mut'));
       tr.append(r.buy_price ? two(px(r.buy_price), dshort(r.buy_date) + ' · 9:20', 'mut') : two('–', r.profit_basis || 'waiting', 'mut'));
       if (mode === 's') {
