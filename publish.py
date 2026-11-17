@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+"""Copy the tracker's latest picks.json into this site and push it to GitHub Pages.
+
+    python publish.py                      # from this folder
+    python publish.py --source PATH        # another picks.json
+
+Only data/picks.json is changed. Nothing is pushed when the data has not changed.
+"""
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DEFAULT = os.path.join(HERE, "..", "india-day-trader-skill", "trader-in", "tracker", "picks.json")
+
+
+def git(*args):
+    return subprocess.run(["git", "-C", HERE] + list(args), capture_output=True, text=True)
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--source", default=DEFAULT)
+    a = p.parse_args()
+    if not os.path.exists(a.source):
+        print("no %s: run india-tracker/track.py build first" % a.source)
+        return 1
+    dst = os.path.join(HERE, "data", "picks.json")
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    shutil.copyfile(a.source, dst)
+    git("add", "data/picks.json")
+    if not git("diff", "--cached", "--quiet").returncode:
+        print("No change in the data: nothing to publish.")
+        return 0
+    r = git("commit", "-m", "Update picks data")
+    if r.returncode:
+        print(r.stdout + r.stderr)
+        return 1
+    r = git("push", "origin", "HEAD")
+    print(r.stdout + r.stderr)
+    if r.returncode:
+        return 1
+    print("Published. The site updates within a minute or two.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
