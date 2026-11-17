@@ -220,10 +220,12 @@ svg.i,.btn svg,.tab b svg,.theme svg,.totop svg{fill:none;stroke:currentColor;st
 .more:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
 
 /* tabs: segmented control */
-.tabs{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:5px;border:1px solid var(--line);border-radius:16px;background:var(--raised);overflow:visible;box-shadow:inset 0 1px 2px rgba(0,0,0,.04);position:sticky;top:calc(63px + env(safe-area-inset-top,0px));z-index:20}
-.tab-ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 18px) / 3);border-radius:12px;background:var(--panel);box-shadow:var(--shadow-lift);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));transition:transform .45s var(--ease)}
+.tabs{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:5px;border:1px solid var(--line);border-radius:16px;background:var(--raised);overflow:visible;box-shadow:inset 0 1px 2px rgba(0,0,0,.04);position:sticky;top:calc(63px + env(safe-area-inset-top,0px));z-index:20}
+.tab-ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 22px) / 4);border-radius:12px;background:var(--panel);box-shadow:var(--shadow-lift);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));transition:transform .45s var(--ease)}
 .tabs[data-on="swing"] .tab-ind{transform:translateX(calc(100% + 4px))}
-.tabs[data-on="scoreboard"] .tab-ind{transform:translateX(calc(200% + 8px))}
+.tabs[data-on="hold20"] .tab-ind{transform:translateX(calc(200% + 8px))}
+@media (max-width:480px){.tab b svg{display:none}}
+.tabs[data-on="scoreboard"] .tab-ind{transform:translateX(calc(300% + 12px))}
 .tab{position:relative;z-index:1;border:0;border-radius:12px;padding:12px 16px;transition:color .25s}
 .tab b{display:inline-flex;align-items:center;gap:8px}
 .tab b svg{width:18px;height:18px;transition:transform .45s var(--ease)}
@@ -497,6 +499,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     <div class="cta">
       <a class="btn primary" href="#intraday" data-go="intraday"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg>Today's intraday list</a>
       <a class="btn ghost" href="#swing" data-go="swing"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Swing list, 5 to 10 days</a>
+      <a class="btn ghost" href="#hold20" data-go="hold20"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/></svg>20-day hold list</a>
       <a class="btn heat" href="https://www.nseindia.com/market-data/live-market-indices/heatmap" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg><span class="dot" aria-hidden="true"></span>NSE live heatmap<svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="sr">(opens nseindia.com in a new tab)</span></a>
       <a class="btn ghost" href="heatmap.html" target="_blank" rel="noopener" id="heat-close"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg>Heatmap at the close<span class="sr">(opens in a new tab)</span></a>
     </div>
@@ -508,6 +511,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     <span class="tab-ind" aria-hidden="true"></span>
     <button class="tab" id="tab-intraday" role="tab" aria-selected="true" aria-controls="intraday" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Intraday</b><span>made before 9:15 AM, for that day</span></button>
     <button class="tab" id="tab-swing" role="tab" aria-selected="false" aria-controls="swing" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c3 0 3-10 6-10s3 10 6 10 3-6 6-6"/></svg>Swing</b><span>made after the close, for 5 to 10 days</span></button>
+    <button class="tab" id="tab-hold20" role="tab" aria-selected="false" aria-controls="hold20" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/></svg>20-day</b><span>uptrend stocks, held 20 days</span></button>
     <button class="tab" id="tab-scoreboard" role="tab" aria-selected="false" aria-controls="scoreboard" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3M17 6h2.5a2.5 2.5 0 0 1-2.6 3M12 13v4M8.5 20h7M10 17h4"/></svg>Scoreboard</b><span>which rule is really earning</span></button>
   </nav>
 
@@ -606,11 +610,36 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     </div>
   </section>
 
+  <section class="sec" id="hold20" role="tabpanel" aria-labelledby="tab-hold20" hidden>
+    <details class="about" id="about-hold20" open>
+      <summary>How the 20-day hold list is made</summary>
+      <dl>
+        <dt>Agent</dt><dd>Swing intel (swing_intel.py), run automatically at 7:50 PM on weekdays</dd>
+        <dt>Stocks it looks at</dt><dd>All NIFTY 500 stocks</dd>
+        <dt>Rules</dt><dd>The stock closes above its 50-day average, the 50-day is above the 200-day, it trades at least ₹5 crore a day, it is not on the avoid list (failed breakout, distribution, exhaustion), and NIFTY 50 is above its 200-day average; otherwise the list stands aside. The top 10 by swing-intel score are traded here.</dd>
+        <dt>Tested</dt><dd>NIFTY 500, 2017 to 2026, out of sample: about +1% a trade after delivery charges, held 20 days, but only 42% of trades made money, and buying any stock in an uptrend did just as well, so the gain is the market's drift, not the picking. Losing streaks were long and some trades gapped far through the stop: keep each position small.</dd>
+        <dt>Your plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the next session, hold 20 trading days (about a month), sell at the day 20 close, 100 shares each. The stop shown is 2 ATR under the close; move it to 2 ATR under your real buy price.</dd>
+      </dl>
+    </details>
+    <div class="card">
+      <div class="latest-head"><span class="when" id="h-when">—</span><span class="stamp"><i></i><span id="h-made">—</span></span><span class="note" id="h-latest-note"></span></div>
+      <p class="note" id="h-status">—</p>
+      <div class="picks" id="h-latest"></div>
+    </div>
+    <div class="card">
+      <h2>20-day lists: latest 3 lists</h2>
+      <p class="note">Each day shows the closing price and the profit or loss on 100 shares at that close. The final P/L sells at the day 20 close (or the latest close while it runs); "After charges" takes off delivery charges.</p>
+      <div class="days" id="h-days-list"></div>
+      <div class="older" id="h-older-wrap"><label for="h-older">Older reports</label><select class="sel" id="h-older"></select></div>
+      <div class="days" id="h-older-list"></div>
+    </div>
+  </section>
+
   <section class="sec" id="scoreboard" role="tabpanel" aria-labelledby="tab-scoreboard" hidden>
     <details class="about" id="about-score">
       <summary>How the scoreboard works</summary>
       <dl>
-        <dt>What it shows</dt><dd>The real record of every list since 17 Nov 2026, traded your way: bought at the close of the 9:15 AM candle, 100 shares, sold at 3:15 PM (intraday), after 5 or 10 days (swing) or after 40 days (results jump). Only finished trades count.</dd>
+        <dt>What it shows</dt><dd>The real record of every list since 17 Nov 2026, traded your way: bought at the close of the 9:15 AM candle, 100 shares, sold at 3:15 PM (intraday), after 5 or 10 days (swing), after 20 days (20-day hold) or after 40 days (results jump). Only finished trades count.</dd>
         <dt>Compared with</dt><dd>The average stock bought and sold at the same times: every F&amp;O stock from open to close for intraday, every NIFTY 500 stock from the buy day's open to the sell day's close for swing. "Beat the market by" is before charges on both sides, so it is a fair comparison.</dd>
         <dt>When to trust it</dt><dd>A rule needs at least 20 finished trades before the scoreboard gives a verdict. "Beating the market" also needs a clear lead, not one lucky week (a t-value of 2 or more).</dd>
         <dt>What happens next</dt><dd>A rule that lags the market after 20 or more trades gets fixed or dropped. A rule that beats it keeps its place.</dd>
@@ -671,7 +700,9 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   const el = (tag, cl, text) => { const e = document.createElement(tag); if (cl) e.className = cl; if (text !== undefined) e.textContent = text; return e; };
   const mean = (a) => a.length ? Math.round(100 * a.reduce((x, y) => x + y, 0) / a.length) / 100 : null;
   const limit = {i: 10, s: 10};
-  let ROWS = [], RT = null, SB = null, DT = null, first = true;
+  let ROWS = [], RT = null, SB = null, DT = null, HT = null, first = true;
+  const modeOf = (type) => ({Intraday: 'i', Results: 'r', Hold20: 'h'})[type] || 's';
+  const typeOf = {i: 'Intraday', s: 'Swing', r: 'Results', h: 'Hold20'};
   function dontTouch() {
     const chips = $('dt-chips'); chips.replaceChildren();
     if (!DT) { $('dt-note').textContent = 'The list is made every weekday evening for the next session.'; $('dt-made').textContent = 'not made yet'; return; }
@@ -778,7 +809,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 
   // tabs, routed on #intraday / #swing
   function show(which) {
-    for (const id of ['intraday', 'swing', 'scoreboard']) {
+    for (const id of ['intraday', 'swing', 'hold20', 'scoreboard']) {
       $(id).hidden = id !== which;
       const t = $('tab-' + id); t.setAttribute('aria-selected', String(id === which)); t.tabIndex = id === which ? 0 : -1;
     }
@@ -787,8 +818,9 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   }
   $('tab-intraday').addEventListener('click', () => show('intraday'));
   $('tab-swing').addEventListener('click', () => show('swing'));
+  $('tab-hold20').addEventListener('click', () => show('hold20'));
   $('tab-scoreboard').addEventListener('click', () => show('scoreboard'));
-  const fromHash = () => ({'#swing': 'swing', '#scoreboard': 'scoreboard'})[location.hash] || 'intraday';
+  const fromHash = () => ({'#swing': 'swing', '#hold20': 'hold20', '#scoreboard': 'scoreboard'})[location.hash] || 'intraday';
   window.addEventListener('hashchange', () => show(fromHash()));
 
   function countUp(node, v, fmt) {
@@ -841,11 +873,11 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   document.documentElement.classList.add('js');
   window.addEventListener('load', () => {     // a fresh visit opens at the top, not at the tab anchor; a reload keeps its place
     const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
-    if (/^#(intraday|swing|scoreboard)$/.test(location.hash) && (!nav || nav.type === 'navigate')) setTimeout(() => window.scrollTo(0, 0), 0);
+    if (/^#(intraday|swing|hold20|scoreboard)$/.test(location.hash) && (!nav || nav.type === 'navigate')) setTimeout(() => window.scrollTo(0, 0), 0);
   }, {once: true});   // open at the top, not at the tab anchor
   const tabsNav = document.querySelector('.tabs');
-  const syncTabs = () => { tabsNav.dataset.on = ['swing', 'scoreboard'].find((id) => $('tab-' + id).getAttribute('aria-selected') === 'true') || 'intraday'; };
-  for (const id of ['swing', 'scoreboard']) new MutationObserver(syncTabs).observe($('tab-' + id), {attributes: true, attributeFilter: ['aria-selected']});
+  const syncTabs = () => { tabsNav.dataset.on = ['swing', 'hold20', 'scoreboard'].find((id) => $('tab-' + id).getAttribute('aria-selected') === 'true') || 'intraday'; };
+  for (const id of ['swing', 'hold20', 'scoreboard']) new MutationObserver(syncTabs).observe($('tab-' + id), {attributes: true, attributeFilter: ['aria-selected']});
   syncTabs();
   for (const a of document.querySelectorAll('[data-go]')) a.addEventListener('click', (e) => {
     e.preventDefault(); show(a.dataset.go);
@@ -890,12 +922,12 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
         const g = el('div', 'q-group'); const nm = el('b'); nm.appendChild(mark(s, w)); g.append(nm, el('span', '', rows.length + (rows.length === 1 ? ' time' : ' times') + ' on a list'));
         box.appendChild(g);
         for (const r of rows) {
-          const mode = r.type === 'Intraday' ? 'i' : r.type === 'Results' ? 'r' : 's', n = N(r.profit_net);
+          const mode = modeOf(r.type), n = N(r.profit_net);
           const b = el('button', 'q-item'); b.type = 'button'; b.setAttribute('role', 'option'); b.id = 'q-opt-' + items.length;
           const d = el('span', 'd');
           d.append(mode === 'i' ? 'For ' + dlong(r.for_day) : 'Shortlisted ' + dlong(r.list_date), el('small', '', r.buy_price ? '  ·  bought ' + px(r.buy_price) : '  ·  not bought yet'));
           const v = el('span', 'v ' + cls(n), n === null ? (r.verdict ? 'Judge ' + r.verdict : 'waiting') : inr(n));
-          b.append(el('span', 't' + (mode === 'i' ? ' i' : ''), mode === 'i' ? 'Intraday' : mode === 'r' ? 'Results' : 'Swing'), d, v);
+          b.append(el('span', 't' + (mode === 'i' ? ' i' : ''), mode === 'i' ? 'Intraday' : mode === 'r' ? 'Results' : mode === 'h' ? '20-day' : 'Swing'), d, v);
           b.title = 'Open the candle chart';
           b.addEventListener('mousedown', (e) => e.preventDefault());
           b.addEventListener('click', () => { close(); openChart(r, mode); });
@@ -1084,10 +1116,10 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     const c = el('div', 'pick' + (n === null ? '' : n > 0 ? ' up' : ' down'));
     c.append(symBtn(r, mode, r.rank + '. ' + r.symbol, 'sym'), el('span', 'res ' + cls(val), main),
       el('span', 'px', mode === 'i' ? 'bought ' + px(r.buy_price) + ' · sold ' + px(r.sell_price)
-                                    : 'bought ' + px(r.buy_price) + ' · ' + (r.sessions_after || 0) + ' of 5 days'),
+                                    : 'bought ' + px(r.buy_price) + ' · ' + (r.sessions_after || 0) + ' of ' + (r.hold_days || 5) + ' days'),
       el('span', 'why', (r.verdict ? 'Judge ' + r.verdict + ' · ' : '') + (mode === 'i'
         ? (N(r.profit_net) !== null ? '100 shares, after charges' : (r.profit_basis || r.reason || ''))
-        : (r.plan_stop ? 'stop ' + px(r.plan_stop) + ' · target ' + px(r.plan_target) : (r.reason || '')))));
+        : (r.plan_stop ? 'stop ' + px(r.plan_stop) + (r.plan_target ? ' · target ' + px(r.plan_target) : '') : (r.reason || '')))));
     return c;
   }
 
@@ -1103,12 +1135,12 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     const sc = list.filter((r) => N(r.profit_net) !== null);
     const tot = sc.reduce((a, r) => a + N(r.profit_net), 0), gtot = sc.reduce((a, r) => a + N(r.profit_gross), 0);
     const buyDay = (list.find((r) => r.buy_date) || {}).buy_date;
-    head.append(el('b', '', mode === 'i' ? 'Intraday · ' + dlong(day) : mode === 'r' ? 'Results jump · ' + dlong(day) : 'Swing · shortlisted ' + dlong(day)),
+    head.append(el('b', '', mode === 'i' ? 'Intraday · ' + dlong(day) : mode === 'r' ? 'Results jump · ' + dlong(day) : mode === 'h' ? '20-day hold · shortlisted ' + dlong(day) : 'Swing · shortlisted ' + dlong(day)),
       el('span', '', (madeAt ? 'shortlisted at ' + madeAt : 'rebuilt later, no time') + ' · ' +
-        (mode !== 'i' ? 'bought ' + (buyDay ? dshort(buyDay) : 'next session') + ' at the 9:15 candle close' + (mode === 'r' ? ', held up to 40 days · ' : ' · ') : 'bought at the 9:15 candle close, sold at 3:15 PM · ') +
+        (mode !== 'i' ? 'bought ' + (buyDay ? dshort(buyDay) : 'next session') + ' at the 9:15 candle close' + (mode === 'r' ? ', held up to 40 days · ' : mode === 'h' ? ', held 20 days · ' : ' · ') : 'bought at the 9:15 candle close, sold at 3:15 PM · ') +
         (sc.length ? 'total ' + inr(tot) + ' after charges' : 'no result yet')));
     let heads;
-    const dayCols = mode === 'r' ? [1, 10, 20, 30, 40] : [1, 2, 3, 4, 5, 10];
+    const dayCols = mode === 'r' ? [1, 10, 20, 30, 40] : mode === 'h' ? [1, 5, 10, 15, 20] : [1, 2, 3, 4, 5, 10];
     if (mode !== 'i') {
       const dd = dayCols.map((k) => { const x = list.find((r) => r['day' + k + '_date']); return 'Day ' + k + ' · ' + (x ? dshort(x['day' + k + '_date']) : 'waiting'); });
       heads = [['#', 'num'], ['Stock'], [mode === 'r' ? 'Results day' : 'Shortlisted at', 'num'], ['Bought (9:15 candle close)', 'num'],
@@ -1159,9 +1191,9 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   }
 
   // the latest 3 lists, then older reports on request
-  const older = {i: '', s: '', r: ''};
+  const older = {i: '', s: '', r: '', h: ''};
   function dayList(type) {
-    const mode = type === 'Intraday' ? 'i' : type === 'Results' ? 'r' : 's', key = mode === 'i' ? 'for_day' : 'list_date';
+    const mode = modeOf(type), key = mode === 'i' ? 'for_day' : 'list_date';
     const rows = ROWS.filter((r) => r.type === type);
     const days = [...new Set(rows.map((r) => r[key]))].filter(Boolean).sort().reverse();
     const box = $(mode + '-days-list'), obox = $(mode + '-older-list'), sel = $(mode + '-older');
@@ -1179,8 +1211,8 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     const show = older[mode] === 'all' ? rest : (rest.includes(older[mode]) ? [older[mode]] : []);
     obox.replaceChildren(...show.map((d) => listTable(byDay(d), mode, d)));
   }
-  for (const m of ['i', 's', 'r']) {
-    $(m + '-older').addEventListener('change', (e) => { older[m] = e.target.value; dayList(m === 'i' ? 'Intraday' : m === 'r' ? 'Results' : 'Swing'); });
+  for (const m of ['i', 's', 'r', 'h']) {
+    $(m + '-older').addEventListener('change', (e) => { older[m] = e.target.value; dayList(typeOf[m]); });
   }
 
   // ---------- charts
@@ -1313,7 +1345,17 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     countUp($('s-days'), S.days, (v) => String(Math.round(v))); $('s-picks').textContent = S.picks;
     $('tile-s-d5').className = 'tile ' + (S.avg_d5 === null ? '' : S.avg_d5 > 0.25 ? 'ok' : 'bad');
     $('tile-s-latest').className = 'tile ' + (S.avg_latest === null ? '' : S.avg_latest > 0 ? 'ok' : 'bad');
-    dayList('Intraday'); dayList('Swing'); dayList('Results'); resultsToday(); scoreboardView(); dontTouch();
+    // 20-day hold
+    const hd = [...new Set(ROWS.filter((r) => r.type === 'Hold20').map((r) => r.list_date))].sort().pop() || null;
+    const lh = hd ? dayRows('Hold20', 'list_date', hd) : [];
+    $('h-when').textContent = hd ? '20-day hold list made ' + dlong(hd) : 'No 20-day hold list yet';
+    $('h-made').textContent = lh[0] && lh[0].made_at ? 'at ' + time12(lh[0].made_at) + ', after the close' : '—';
+    $('h-latest-note').textContent = 'Bought at the 9:15 candle close on the next session, hold 20 days · ' + (lh.length ? Math.max(...lh.map((r) => r.sessions_after || 0)) : 0) + ' of 20 days so far';
+    $('h-status').textContent = !HT ? 'The first 20-day list is made at 7:50 PM on the next weekday.'
+      : HT.nifty_above_200d === false ? 'NIFTY 50 is under its 200-day average: the 20-day rule stands aside today.'
+      : HT.eligible + ' NIFTY 500 stocks were eligible at the close of ' + dlong(HT.session) + '; the top ' + HT.shown + ' by score are traded here. Sell at the day 20 close, about ' + dlong(HT.exit_about) + '.';
+    $('h-latest').replaceChildren(...lh.map((r) => pickCard(r, 'h')));
+    dayList('Intraday'); dayList('Swing'); dayList('Results'); dayList('Hold20'); resultsToday(); scoreboardView(); dontTouch();
     if (!$('intraday').hidden) curve();
     if (!$('swing').hidden) hold();
     first = false;
@@ -1325,7 +1367,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   fetch('data/picks.json?v=' + Date.now(), {cache: 'no-store'})
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((doc) => {
-      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null; DT = doc.dont_touch || null;
+      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null; DT = doc.dont_touch || null; HT = doc.hold20_today || null;
       const built = (doc.meta || []).find((m) => m.label === 'Built');
       $('built').textContent = built ? 'Data built ' + built.value + '.' : '';
       show(fromHash());
