@@ -4,7 +4,7 @@
     python publish.py                      # from this folder
     python publish.py --source PATH        # another picks.json
 
-Only data/picks.json is changed. Nothing is pushed when the data has not changed.
+Only data/picks.json and data/indices.json are changed. Nothing is pushed when the data has not changed.
 """
 import argparse
 import os
@@ -30,7 +30,10 @@ def main():
     dst = os.path.join(HERE, "data", "picks.json")
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     shutil.copyfile(a.source, dst)
-    git("add", "data/picks.json")
+    idx = os.path.join(os.path.dirname(a.source), "indices.json")
+    if os.path.exists(idx):
+        shutil.copyfile(idx, os.path.join(HERE, "data", "indices.json"))
+    git("add", "data/picks.json", "data/indices.json")
     if not git("diff", "--cached", "--quiet").returncode:
         print("No change in the data: nothing to publish.")
         return 0

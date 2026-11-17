@@ -86,6 +86,14 @@ table.ledger td{vertical-align:top}
 .older{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-top:6px;border-top:1px dashed var(--line)}
 .older label{font:500 12px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .sel{font:13px var(--body);color:var(--fg);background:var(--raised);border:1px solid var(--line);border-radius:8px;padding:8px 10px;max-width:100%}
+.ticker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.ticker{grid-template-columns:minmax(0,1fr)}}
+.ix{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:end;min-width:0;position:relative;overflow:hidden}
+.ix .nm{font:500 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);grid-column:1/-1}
+.ix .lv{font:400 clamp(24px,2.8vw,30px)/1 var(--display);font-variant-numeric:tabular-nums}
+.ix .ch{font:500 13px var(--mono);font-variant-numeric:tabular-nums}
+.ix .mt{font:11px var(--mono);color:var(--muted);grid-column:1/-1}
+.ix svg{grid-row:2/4;grid-column:2;width:96px;height:38px;overflow:visible}
 .pos{color:var(--ok)}.neg{color:var(--bad)}.mut{color:var(--muted)}
 .chip{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11px;border:1px solid var(--line);color:var(--muted)}
 .chip.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
@@ -122,10 +130,12 @@ table.ledger td{vertical-align:top}
 <div class="wrap">
   <button class="theme" id="theme" type="button" aria-label="Switch light or dark">Theme</button>
   <header style="display:grid;gap:8px">
-    <p class="eyebrow">NSE · bullish lists only · prices to <span id="prices-to">—</span></p>
+    <p class="eyebrow">NSE · bullish lists only · tracking since 17 Nov 2026 · prices to <span id="prices-to">—</span></p>
     <h1>NSE Picks Tracker</h1>
     <p class="lede" id="lede">Loading the lists…</p>
   </header>
+
+  <section class="ticker" id="indices" aria-label="Market indices"></section>
 
   <nav class="tabs" role="tablist" aria-label="Lists">
     <button class="tab" id="tab-intraday" role="tab" aria-selected="true" aria-controls="intraday" type="button"><b>Intraday</b><span>made before 9:15 AM, for that day</span></button>
@@ -454,6 +464,34 @@ table.ledger td{vertical-align:top}
     host.replaceChildren(svg.node());
   }
 
+  // ---------- indices strip
+  let IDX = [];
+  function indices() {
+    const host = $('indices');
+    if (!IDX.length) { host.hidden = true; return; }
+    host.hidden = false;
+    host.replaceChildren(...IDX.map((r) => {
+      const c = el('div', 'ix');
+      const up = N(r.change) >= 0;
+      c.append(el('span', 'nm', r.index),
+        el('span', 'lv', N(r.close).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})),
+        el('span', 'ch ' + (up ? 'pos' : 'neg'), (up ? '▲ +' : '▼ −') + Math.abs(N(r.change)).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' (' + pct(r.change_pct) + ')'),
+        el('span', 'mt', 'close ' + dshort(r.date) + ' · day ' + N(r.low).toLocaleString('en-IN') + ' to ' + N(r.high).toLocaleString('en-IN') + (r.month_pct !== null && r.month_pct !== undefined ? ' · 1 month ' + pct(r.month_pct) : '')));
+      const v = String(r.spark || '').split(',').map(Number).filter((x) => !Number.isNaN(x));
+      if (v.length > 2) {
+        const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+        svg.setAttribute('viewBox', '0 0 96 38'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', r.index + ', last ' + v.length + ' closes');
+        const lo = Math.min(...v), hi = Math.max(...v), sx = (i) => i / (v.length - 1) * 92 + 2, sy = (x) => 34 - (hi === lo ? 0.5 : (x - lo) / (hi - lo)) * 30;
+        const d = v.map((x, i) => (i ? 'L' : 'M') + sx(i).toFixed(1) + ' ' + sy(x).toFixed(1)).join(' ');
+        const area = document.createElementNS(ns, 'path'); area.setAttribute('d', d + ' L94 36 L2 36 Z'); area.setAttribute('fill', up ? 'var(--ok)' : 'var(--bad)'); area.setAttribute('opacity', '0.12');
+        const line = document.createElementNS(ns, 'path'); line.setAttribute('d', d); line.setAttribute('fill', 'none'); line.setAttribute('stroke', up ? 'var(--ok)' : 'var(--bad)'); line.setAttribute('stroke-width', '1.8');
+        const dot = document.createElementNS(ns, 'circle'); dot.setAttribute('cx', sx(v.length - 1)); dot.setAttribute('cy', sy(v[v.length - 1])); dot.setAttribute('r', '2.6'); dot.setAttribute('fill', up ? 'var(--ok)' : 'var(--bad)');
+        svg.append(area, line, dot); c.appendChild(svg);
+      }
+      return c;
+    }));
+  }
+
   // ---------- page
   function render() {
     if (!ROWS.length) return;
@@ -461,9 +499,12 @@ table.ledger td{vertical-align:top}
     $('prices-to').textContent = dshort(I.prices_to);
     const lede = $('lede'); lede.replaceChildren();
     const b = (t) => el('b', '', t), tx = (t) => document.createTextNode(t);
-    lede.append(tx('The 9 AM intraday lists have '), b((I.rupees >= 0 ? 'made ' : 'lost ') + inr(Math.abs(I.rupees)).replace('+', '')),
-      tx(' in total over ' + I.trades + ' trades on ' + I.days + ' days (bought at the 9:15 candle close, sold at 3:15 PM, 100 shares each, after charges). The evening swing lists hold ' + S.picks + ' picks from ' + S.days + (S.days === 1 ? ' list; ' : ' lists; ')),
-      S.with_d5 ? b('after 5 days they averaged ' + pct(S.avg_d5)) : tx('none has been held 5 days yet'), tx('.'));
+    const pl = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+    lede.append(tx('Since 17 Nov 2026 the 9 AM intraday lists have '), b((I.rupees >= 0 ? 'made ' : 'lost ') + inr(Math.abs(I.rupees)).replace('+', '')),
+      tx(' over ' + pl(I.trades, 'trade') + ' on ' + pl(I.days, 'day') + ' (bought at the 9:15 candle close, sold at 3:15 PM, 100 shares each, after charges). '));
+    if (!S.picks) lede.append(tx('The first evening swing list is made after today\'s close and bought at 9:20 on the next trading day.'));
+    else { const sp = ROWS.filter((r) => r.type === 'Swing' && N(r.profit_net) !== null).reduce((a, r) => a + N(r.profit_net), 0);
+      lede.append(tx('The evening swing lists hold ' + pl(S.picks, 'pick') + ' from ' + pl(S.days, 'list') + '; at their latest close they stand at '), b(inr(sp)), tx(' after charges.')); }
     // intraday
     $('i-when').textContent = I.last_day ? 'Intraday list for ' + dlong(I.last_day) : '—';
     $('i-made').textContent = I.last_made_at ? 'made ' + time12(I.last_made_at) + (I.last_made_on && I.last_made_on !== I.last_day ? ' on ' + dshort(I.last_made_on) : '') : 'rebuilt later';
@@ -494,6 +535,8 @@ table.ledger td{vertical-align:top}
   }
   let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(render, 150); });
 
+  fetch('data/indices.json?v=' + Date.now(), {cache: 'no-store'})
+    .then((r) => r.ok ? r.json() : {rows: []}).then((doc) => { IDX = doc.rows || []; indices(); }).catch(() => indices());
   fetch('data/picks.json?v=' + Date.now(), {cache: 'no-store'})
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((doc) => {
