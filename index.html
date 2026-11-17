@@ -455,6 +455,15 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 .sb-exp{margin:4px 0 0;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
 @media (prefers-reduced-motion:no-preference){.sb-prog i{animation:growx 1s var(--ease) both}.sb-card{animation:rise .5s var(--ease) both}.sb-card:nth-child(2){animation-delay:60ms}.sb-card:nth-child(3){animation-delay:120ms}.sb-card:nth-child(4){animation-delay:180ms}.sb-card:nth-child(5){animation-delay:240ms}.sb-card:nth-child(6){animation-delay:300ms}}
 @keyframes growx{from{width:0}}
+
+/* don't touch + hold tags */
+.dt-card{border-left:3px solid var(--bad)}
+.stamp.bad{background:color-mix(in srgb,var(--bad) 10%,transparent);border-color:color-mix(in srgb,var(--bad) 35%,transparent)}
+.stamp.bad i{background:var(--bad)}
+.dt-rule{border-top:1px dashed var(--line);padding-top:10px}
+.dt-rule .mut{display:block;margin-top:4px;font-size:12px}
+.gapchip{font-size:10.5px;padding:1px 7px;vertical-align:middle}
+.holdtag{display:inline-block;margin-left:6px;font:500 10.5px var(--mono);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 5px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -487,7 +496,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     <p class="lede" id="lede">Loading the lists…</p>
     <div class="cta">
       <a class="btn primary" href="#intraday" data-go="intraday"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg>Today's intraday list</a>
-      <a class="btn ghost" href="#swing" data-go="swing"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Swing list, 2 to 5 days</a>
+      <a class="btn ghost" href="#swing" data-go="swing"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Swing list, 5 to 10 days</a>
       <a class="btn heat" href="https://www.nseindia.com/market-data/live-market-indices/heatmap" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg><span class="dot" aria-hidden="true"></span>NSE live heatmap<svg class="ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="sr">(opens nseindia.com in a new tab)</span></a>
       <a class="btn ghost" href="heatmap.html" target="_blank" rel="noopener" id="heat-close"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg>Heatmap at the close<span class="sr">(opens in a new tab)</span></a>
     </div>
@@ -498,7 +507,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   <nav class="tabs" role="tablist" aria-label="Lists">
     <span class="tab-ind" aria-hidden="true"></span>
     <button class="tab" id="tab-intraday" role="tab" aria-selected="true" aria-controls="intraday" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Intraday</b><span>made before 9:15 AM, for that day</span></button>
-    <button class="tab" id="tab-swing" role="tab" aria-selected="false" aria-controls="swing" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c3 0 3-10 6-10s3 10 6 10 3-6 6-6"/></svg>Swing</b><span>made after the close, for 2 to 5 days</span></button>
+    <button class="tab" id="tab-swing" role="tab" aria-selected="false" aria-controls="swing" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c3 0 3-10 6-10s3 10 6 10 3-6 6-6"/></svg>Swing</b><span>made after the close, for 5 to 10 days</span></button>
     <button class="tab" id="tab-scoreboard" role="tab" aria-selected="false" aria-controls="scoreboard" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3M17 6h2.5a2.5 2.5 0 0 1-2.6 3M12 13v4M8.5 20h7M10 17h4"/></svg>Scoreboard</b><span>which rule is really earning</span></button>
   </nav>
 
@@ -516,6 +525,12 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     <div class="card">
       <div class="latest-head"><span class="when" id="i-when">—</span><span class="stamp"><i></i><span id="i-made">—</span></span><span class="note" id="i-latest-total"></span></div>
       <div class="picks" id="i-latest"></div>
+    </div>
+    <div class="card dt-card" id="dt-card">
+      <div class="latest-head"><span class="when" id="dt-when">Don't touch</span><span class="stamp bad"><i></i><span id="dt-made">—</span></span></div>
+      <p class="note" id="dt-note">—</p>
+      <div class="rchips" id="dt-chips"></div>
+      <p class="note dt-rule" id="dt-rule"></p>
     </div>
     <div class="card">
       <h2>Intraday lists: latest 3 days</h2>
@@ -545,7 +560,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
         <dt>Stocks it looks at</dt><dd>All NIFTY 500 stocks</dd>
         <dt>Data</dt><dd>Daily, weekly and monthly charts, relative strength vs NIFTY and the sector, volume and delivery, results calendar, quarterly results, promoter and bulk deals, market regime</dd>
         <dt>Rules</dt><dd>A 100-point score picks the top 20; only names that pass all 11 swing safety checks (trend, setup, not stretched, enough trading, no results in the hold, loss fits the budget and more) make the list. The tested rule adds names from strong, strengthening sectors when NIFTY is above its 200-day average.</dd>
-        <dt>Your plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the first session after the list, track day 1 to day 5, sell at the day 5 close, 100 shares each</dd>
+        <dt>Your plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the first session after the list, 100 shares each. Checklist names: sell at the day 5 close. Tested-rule names: hold to the day 10 close (a Nov 2026 test found 10 days made about +1.1% a trade against +0.14% at 5 days, ahead of the market in 8 of 8 years; stops made it worse).</dd>
       </dl>
     </details>
     <div class="card">
@@ -554,7 +569,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     </div>
     <div class="card">
       <h2>Swing lists: latest 3 lists</h2>
-      <p class="note">Your plan: buy at the close of the 9:15 AM five-minute candle on the first session after the list, then hold. Each day shows the closing price and the profit or loss on 100 shares at that close. The final P/L sells at the day 5 close (or the latest close while it runs); "After charges" takes off delivery charges.</p>
+      <p class="note">Your plan: buy at the close of the 9:15 AM five-minute candle on the first session after the list, then hold. Each day shows the closing price and the profit or loss on 100 shares at that close. The final P/L sells at the day 5 close for checklist names and the day 10 close for tested-rule names (or the latest close while it runs); "After charges" takes off delivery charges.</p>
       <div class="days" id="s-days-list"></div>
       <div class="older" id="s-older-wrap"><label for="s-older">Older reports</label><select class="sel" id="s-older"></select></div>
       <div class="days" id="s-older-list"></div>
@@ -566,12 +581,12 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
         <dt>Stocks it looks at</dt><dd>All NIFTY 500 stocks that published quarterly results since the last close</dd>
         <dt>Data</dt><dd>NSE's own results filing times, NSE's daily price, volume and delivery files, NIFTY 50 for market health</dd>
         <dt>Rules</dt><dd>On its results day the stock closed up 4% or more, on at least double its usual volume, near the day's high, and NIFTY 50 is above its 200-day average. A results fall (down 4% or more on double volume, closing near the low) goes on the "don't buy" list.</dd>
-        <dt>Tested</dt><dd>2019 to 2026, 643 jumps: about +2.2% a trade after charges over 20 trading days, 59% made money, about 1.9 points better than the market in both halves of the test. Only about +0.2% after 5 days. 2020, 2022 and 2026 so far lost; 1 trade in 20 lost 13% or more. Results falls lagged the market in all 7 years.</dd>
-        <dt>Your plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the next session, hold up to 20 trading days, sell at the day 20 close, 100 shares each</dd>
+        <dt>Tested</dt><dd>2019 to 2026, 642 jumps held 40 trading days: about +3.9% a trade after charges, 59% made money, about 2.7 points better than the market in both halves of the test (+2.2% at 20 days, only +0.2% at 5). Stops made it worse. 2020, 2022 and 2026 so far lost; 1 trade in 20 lost 20% or more, so keep each position small. Results falls lagged the market in all 7 years.</dd>
+        <dt>Your plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the next session, hold up to 40 trading days (about 2 months), sell at the day 40 close, 100 shares each</dd>
       </dl>
     </details>
     <div class="card" id="r-card">
-      <div class="latest-head"><span class="when">Results jump</span><span class="stamp"><i></i><span id="r-made">—</span></span><span class="note">hold up to 20 trading days</span></div>
+      <div class="latest-head"><span class="when">Results jump</span><span class="stamp"><i></i><span id="r-made">—</span></span><span class="note">hold up to 40 trading days</span></div>
       <p class="note" id="r-status">—</p>
       <div class="rchips" id="r-chips"></div>
       <div class="days" id="r-days-list"></div>
@@ -595,7 +610,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     <details class="about" id="about-score">
       <summary>How the scoreboard works</summary>
       <dl>
-        <dt>What it shows</dt><dd>The real record of every list since 17 Nov 2026, traded your way: bought at the close of the 9:15 AM candle, 100 shares, sold at 3:15 PM (intraday), after 5 days (swing) or after 20 days (results jump). Only finished trades count.</dd>
+        <dt>What it shows</dt><dd>The real record of every list since 17 Nov 2026, traded your way: bought at the close of the 9:15 AM candle, 100 shares, sold at 3:15 PM (intraday), after 5 or 10 days (swing) or after 40 days (results jump). Only finished trades count.</dd>
         <dt>Compared with</dt><dd>The average stock bought and sold at the same times: every F&amp;O stock from open to close for intraday, every NIFTY 500 stock from the buy day's open to the sell day's close for swing. "Beat the market by" is before charges on both sides, so it is a fair comparison.</dd>
         <dt>When to trust it</dt><dd>A rule needs at least 20 finished trades before the scoreboard gives a verdict. "Beating the market" also needs a clear lead, not one lucky week (a t-value of 2 or more).</dd>
         <dt>What happens next</dt><dd>A rule that lags the market after 20 or more trades gets fixed or dropped. A rule that beats it keeps its place.</dd>
@@ -618,9 +633,9 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     <dl>
       <dt>Intraday list</dt><dd>The morning desk's bullish names, made before the 9:15 open from the previous close and overnight data, for that day only. Lists before 16 Nov 2026 were rebuilt later from each day's data, so they show no time.</dd>
       <dt>Intraday plan</dt><dd>Buy every name at the close of the 9:15 AM five-minute candle, sell at the 3:15 PM price, 100 shares each, after Zerodha intraday charges.</dd>
-      <dt>Swing list</dt><dd>Made after the close: the names that passed every swing safety check, plus any from the tested swing rule. Meant to be held 2 to 5 sessions.</dd>
+      <dt>Swing list</dt><dd>Made after the close: the names that passed every swing safety check, plus any from the tested swing rule. Checklist names are held 5 sessions, tested-rule names 10.</dd>
       <dt>Judge</dt><dd>A fixed-rule check on each name: TAKE (no red flag), WAIT (3 or more warnings), SKIP (a hard red flag).</dd>
-      <dt>Swing plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the first session after the list; each day's P/L is that day's close against the buy, on 100 shares; the final P/L sells at the day 5 close, after delivery charges (STT, stamp, exchange, GST, DP).</dd>
+      <dt>Swing plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the first session after the list; each day's P/L is that day's close against the buy, on 100 shares; the final P/L sells at the day 5 close (checklist names) or day 10 close (tested-rule names), after delivery charges (STT, stamp, exchange, GST, DP).</dd>
     </dl>
     <p>Prices are NSE's own end-of-day files. Updated every weekday evening. Past results, not predictions and not financial advice.</p>
     <p class="status" id="built">—</p>
@@ -656,7 +671,17 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   const el = (tag, cl, text) => { const e = document.createElement(tag); if (cl) e.className = cl; if (text !== undefined) e.textContent = text; return e; };
   const mean = (a) => a.length ? Math.round(100 * a.reduce((x, y) => x + y, 0) / a.length) / 100 : null;
   const limit = {i: 10, s: 10};
-  let ROWS = [], RT = null, SB = null, first = true;
+  let ROWS = [], RT = null, SB = null, DT = null, first = true;
+  function dontTouch() {
+    const chips = $('dt-chips'); chips.replaceChildren();
+    if (!DT) { $('dt-note').textContent = 'The list is made every weekday evening for the next session.'; $('dt-made').textContent = 'not made yet'; return; }
+    $('dt-when').textContent = "Don't touch on " + dlong(DT.for_day);
+    $('dt-made').textContent = 'from the close of ' + dshort(DT.from_close);
+    $('dt-note').textContent = DT.items.length ? 'F&O stocks the tests say to leave alone for the day, whatever the desk says:' :
+      'No F&O stock is on the list from tonight\'s signals.';
+    chips.append(...DT.items.map((x) => { const c = el('span', 'rchip bad'); c.append(el('b', '', x.symbol), document.createTextNode(' ' + x.why.join('; '))); return c; }));
+    $('dt-rule').replaceChildren(el('b', '', 'At 9:15: '), document.createTextNode(DT.gap_rule + ' '), el('span', 'mut', 'Tested: ' + DT.tested));
+  }
   function scoreboardView() {
     const grid = $('sb-grid');
     if (!SB || !(SB.rows || []).length) { grid.replaceChildren(el('p', 'note', 'The scoreboard appears after the next evening update.')); return; }
@@ -1080,10 +1105,10 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     const buyDay = (list.find((r) => r.buy_date) || {}).buy_date;
     head.append(el('b', '', mode === 'i' ? 'Intraday · ' + dlong(day) : mode === 'r' ? 'Results jump · ' + dlong(day) : 'Swing · shortlisted ' + dlong(day)),
       el('span', '', (madeAt ? 'shortlisted at ' + madeAt : 'rebuilt later, no time') + ' · ' +
-        (mode !== 'i' ? 'bought ' + (buyDay ? dshort(buyDay) : 'next session') + ' at the 9:15 candle close' + (mode === 'r' ? ', held up to 20 days · ' : ' · ') : 'bought at the 9:15 candle close, sold at 3:15 PM · ') +
+        (mode !== 'i' ? 'bought ' + (buyDay ? dshort(buyDay) : 'next session') + ' at the 9:15 candle close' + (mode === 'r' ? ', held up to 40 days · ' : ' · ') : 'bought at the 9:15 candle close, sold at 3:15 PM · ') +
         (sc.length ? 'total ' + inr(tot) + ' after charges' : 'no result yet')));
     let heads;
-    const dayCols = mode === 'r' ? [1, 5, 10, 15, 20] : [1, 2, 3, 4, 5];
+    const dayCols = mode === 'r' ? [1, 10, 20, 30, 40] : [1, 2, 3, 4, 5, 10];
     if (mode !== 'i') {
       const dd = dayCols.map((k) => { const x = list.find((r) => r['day' + k + '_date']); return 'Day ' + k + ' · ' + (x ? dshort(x['day' + k + '_date']) : 'waiting'); });
       heads = [['#', 'num'], ['Stock'], [mode === 'r' ? 'Results day' : 'Shortlisted at', 'num'], ['Bought (9:15 candle close)', 'num'],
@@ -1097,7 +1122,9 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     thead.appendChild(hr);
     for (const r of list) {
       const tr = el('tr');
-      const sc = el('td', 'sym'); sc.appendChild(symBtn(r, mode, r.symbol)); tr.append(el('td', 'num mut', String(r.rank)), sc);
+      const sc = el('td', 'sym'); sc.appendChild(symBtn(r, mode, r.symbol));
+      if (mode === 'i' && r.gap_skip) { const g = el('span', 'chip bad gapchip', 'opened ' + pct(r.gap_pct) + ': skip'); g.title = 'The plan skips a stock that opens 3% or more above the previous close (2019-2026: such stocks lagged the rest by about 0.5% that day)'; sc.append(document.createTextNode(' '), g); }
+      if (mode !== 'i' && r.hold_days) { sc.appendChild(el('span', 'holdtag', 'hold ' + r.hold_days + 'd')); } tr.append(el('td', 'num mut', String(r.rank)), sc);
       tr.append(mode === 'r' ? two(px(r.pick_price), 'up ' + pct(r.score) + ' on results', 'pos')
         : two(px(r.pick_price), (mode === 'i' ? 'prev close' : 'close') + (madeAt ? ' · ' + madeAt : ''), 'mut'));
       tr.append(r.buy_price ? two(px(r.buy_price), dshort(r.buy_date) + ' · 9:20', 'mut') : two('–', r.profit_basis || 'waiting', 'mut'));
@@ -1286,7 +1313,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     countUp($('s-days'), S.days, (v) => String(Math.round(v))); $('s-picks').textContent = S.picks;
     $('tile-s-d5').className = 'tile ' + (S.avg_d5 === null ? '' : S.avg_d5 > 0.25 ? 'ok' : 'bad');
     $('tile-s-latest').className = 'tile ' + (S.avg_latest === null ? '' : S.avg_latest > 0 ? 'ok' : 'bad');
-    dayList('Intraday'); dayList('Swing'); dayList('Results'); resultsToday(); scoreboardView();
+    dayList('Intraday'); dayList('Swing'); dayList('Results'); resultsToday(); scoreboardView(); dontTouch();
     if (!$('intraday').hidden) curve();
     if (!$('swing').hidden) hold();
     first = false;
@@ -1298,7 +1325,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   fetch('data/picks.json?v=' + Date.now(), {cache: 'no-store'})
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((doc) => {
-      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null;
+      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null; DT = doc.dont_touch || null;
       const built = (doc.meta || []).find((m) => m.label === 'Built');
       $('built').textContent = built ? 'Data built ' + built.value + '.' : '';
       show(fromHash());
