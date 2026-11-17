@@ -423,6 +423,15 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 @media (prefers-reduced-motion:no-preference){.btn.heat .dot{animation:ping-w 1.8s ease-out infinite}}
 @keyframes ping-w{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}80%,100%{box-shadow:0 0 0 8px rgba(255,255,255,0)}}
 @media (max-width:640px){.heatlink{display:none}}
+
+/* results jump */
+.rchips{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.rchips:empty{display:none}
+.rlab{font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-right:2px}
+.rchip{display:inline-flex;gap:6px;align-items:baseline;padding:5px 11px;border-radius:999px;border:1px solid var(--line);font-size:12.5px;font-variant-numeric:tabular-nums;background:var(--raised)}
+.rchip.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line));background:color-mix(in srgb,var(--bad) 8%,transparent)}
+.rchip.mut{color:var(--muted)}
+.rchip b{color:var(--fg)}
 </style>
 </head>
 <body>
@@ -526,6 +535,25 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       <div class="older" id="s-older-wrap"><label for="s-older">Older reports</label><select class="sel" id="s-older"></select></div>
       <div class="days" id="s-older-list"></div>
     </div>
+    <details class="about" id="about-results">
+      <summary>How the results-jump list is made</summary>
+      <dl>
+        <dt>Agent</dt><dd>Results jump (india-results-drift, results_drift.py), run automatically at 7:50 PM on weekdays, then the Judge (india-debate)</dd>
+        <dt>Stocks it looks at</dt><dd>All NIFTY 500 stocks that published quarterly results since the last close</dd>
+        <dt>Data</dt><dd>NSE's own results filing times, NSE's daily price, volume and delivery files, NIFTY 50 for market health</dd>
+        <dt>Rules</dt><dd>On its results day the stock closed up 4% or more, on at least double its usual volume, near the day's high, and NIFTY 50 is above its 200-day average. A results fall (down 4% or more on double volume, closing near the low) goes on the "don't buy" list.</dd>
+        <dt>Tested</dt><dd>2019 to 2026, 643 jumps: about +2.2% a trade after charges over 20 trading days, 59% made money, about 1.9 points better than the market in both halves of the test. Only about +0.2% after 5 days. 2020, 2022 and 2026 so far lost; 1 trade in 20 lost 13% or more. Results falls lagged the market in all 7 years.</dd>
+        <dt>Your plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the next session, hold up to 20 trading days, sell at the day 20 close, 100 shares each</dd>
+      </dl>
+    </details>
+    <div class="card" id="r-card">
+      <div class="latest-head"><span class="when">Results jump</span><span class="stamp"><i></i><span id="r-made">—</span></span><span class="note">hold up to 20 trading days</span></div>
+      <p class="note" id="r-status">—</p>
+      <div class="rchips" id="r-chips"></div>
+      <div class="days" id="r-days-list"></div>
+      <div class="older" id="r-older-wrap"><label for="r-older">Older reports</label><select class="sel" id="r-older"></select></div>
+      <div class="days" id="r-older-list"></div>
+    </div>
     <div class="tiles">
       <div class="tile" id="tile-s-d5"><span class="label">Average after 5 days</span><span class="big" id="s-d5">—</span><span class="sub">from the next open, before charges (<b id="s-d5-n">—</b> picks)</span></div>
       <div class="tile"><span class="label">Up after 5 days</span><span class="big" id="s-up">—</span><span class="sub">share of picks held 5 days</span></div>
@@ -582,7 +610,20 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   const el = (tag, cl, text) => { const e = document.createElement(tag); if (cl) e.className = cl; if (text !== undefined) e.textContent = text; return e; };
   const mean = (a) => a.length ? Math.round(100 * a.reduce((x, y) => x + y, 0) / a.length) / 100 : null;
   const limit = {i: 10, s: 10};
-  let ROWS = [], first = true;
+  let ROWS = [], RT = null, first = true;
+  function resultsToday() {
+    const st = $('r-status'), chips = $('r-chips');
+    chips.replaceChildren();
+    if (!RT) { st.textContent = 'The first results scan runs at 7:50 PM on the next weekday.'; $('r-made').textContent = 'not run yet'; return; }
+    const [md, mt] = String(RT.made || '').split(' ');
+    $('r-made').textContent = 'checked ' + (mt ? time12(mt) : '') + (md && md !== RT.session ? ' on ' + dshort(md) : '') + ', close of ' + dshort(RT.session);
+    st.textContent = (RT.stand_aside ? 'NIFTY 50 is under its 200-day average: the rule stands aside, jumps are shown as watch only. '
+      : 'NIFTY 50 is above its 200-day average: the rule may trade. ') +
+      (RT.jumps ? RT.jumps + (RT.jumps === 1 ? ' results jump' : ' results jumps') + ' at the close of ' + dlong(RT.session) + '.' : 'No results jump at the close of ' + dlong(RT.session) + '.');
+    const chip = (x, kind) => { const c = el('span', 'rchip ' + kind); c.append(el('b', '', x.symbol), document.createTextNode(' ' + pct(x.reaction_pct) + ' on results')); c.title = (x.industry || '') + (x.filed_at ? ' · filed ' + x.filed_at : ''); return c; };
+    if ((RT.falls || []).length) { chips.append(el('span', 'rlab', "Don't buy (results fall):"), ...RT.falls.map((x) => chip(x, 'bad'))); }
+    if ((RT.watch_only || []).length) { chips.append(el('span', 'rlab', 'Watch only:'), ...RT.watch_only.map((x) => chip(x, 'mut'))); }
+  }
 
   // theme toggle (remembered in this browser only)
   try { const t = localStorage.getItem('theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
@@ -723,12 +764,12 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
         const g = el('div', 'q-group'); const nm = el('b'); nm.appendChild(mark(s, w)); g.append(nm, el('span', '', rows.length + (rows.length === 1 ? ' time' : ' times') + ' on a list'));
         box.appendChild(g);
         for (const r of rows) {
-          const mode = r.type === 'Intraday' ? 'i' : 's', n = N(r.profit_net);
+          const mode = r.type === 'Intraday' ? 'i' : r.type === 'Results' ? 'r' : 's', n = N(r.profit_net);
           const b = el('button', 'q-item'); b.type = 'button'; b.setAttribute('role', 'option'); b.id = 'q-opt-' + items.length;
           const d = el('span', 'd');
           d.append(mode === 'i' ? 'For ' + dlong(r.for_day) : 'Shortlisted ' + dlong(r.list_date), el('small', '', r.buy_price ? '  ·  bought ' + px(r.buy_price) : '  ·  not bought yet'));
           const v = el('span', 'v ' + cls(n), n === null ? (r.verdict ? 'Judge ' + r.verdict : 'waiting') : inr(n));
-          b.append(el('span', 't' + (mode === 'i' ? ' i' : ''), mode === 'i' ? 'Intraday' : 'Swing'), d, v);
+          b.append(el('span', 't' + (mode === 'i' ? ' i' : ''), mode === 'i' ? 'Intraday' : mode === 'r' ? 'Results' : 'Swing'), d, v);
           b.title = 'Open the candle chart';
           b.addEventListener('mousedown', (e) => e.preventDefault());
           b.addEventListener('click', () => { close(); openChart(r, mode); });
@@ -936,16 +977,16 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     const sc = list.filter((r) => N(r.profit_net) !== null);
     const tot = sc.reduce((a, r) => a + N(r.profit_net), 0), gtot = sc.reduce((a, r) => a + N(r.profit_gross), 0);
     const buyDay = (list.find((r) => r.buy_date) || {}).buy_date;
-    head.append(el('b', '', mode === 'i' ? 'Intraday · ' + dlong(day) : 'Swing · shortlisted ' + dlong(day)),
+    head.append(el('b', '', mode === 'i' ? 'Intraday · ' + dlong(day) : mode === 'r' ? 'Results jump · ' + dlong(day) : 'Swing · shortlisted ' + dlong(day)),
       el('span', '', (madeAt ? 'shortlisted at ' + madeAt : 'rebuilt later, no time') + ' · ' +
-        (mode === 's' ? 'bought ' + (buyDay ? dshort(buyDay) : 'next session') + ' at the 9:15 candle close · ' : 'bought at the 9:15 candle close, sold at 3:15 PM · ') +
+        (mode !== 'i' ? 'bought ' + (buyDay ? dshort(buyDay) : 'next session') + ' at the 9:15 candle close' + (mode === 'r' ? ', held up to 20 days · ' : ' · ') : 'bought at the 9:15 candle close, sold at 3:15 PM · ') +
         (sc.length ? 'total ' + inr(tot) + ' after charges' : 'no result yet')));
     let heads;
-    if (mode === 's') {
-      const dd = [1, 2, 3, 4, 5].map((k) => { const x = list.find((r) => r['day' + k + '_date']); return x ? dshort(x['day' + k + '_date']) : 'waiting'; });
-      heads = [['#', 'num'], ['Stock'], ['Shortlisted at', 'num'], ['Bought (9:15 candle close)', 'num'],
-        ['Day 1 · ' + dd[0], 'num'], ['Day 2 · ' + dd[1], 'num'], ['Day 3 · ' + dd[2], 'num'], ['Day 4 · ' + dd[3], 'num'], ['Day 5 · ' + dd[4], 'num'],
-        ['P/L, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
+    const dayCols = mode === 'r' ? [1, 5, 10, 15, 20] : [1, 2, 3, 4, 5];
+    if (mode !== 'i') {
+      const dd = dayCols.map((k) => { const x = list.find((r) => r['day' + k + '_date']); return 'Day ' + k + ' · ' + (x ? dshort(x['day' + k + '_date']) : 'waiting'); });
+      heads = [['#', 'num'], ['Stock'], [mode === 'r' ? 'Results day' : 'Shortlisted at', 'num'], ['Bought (9:15 candle close)', 'num'],
+        ...dd.map((h) => [h, 'num']), ['P/L, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
     } else {
       heads = [['#', 'num'], ['Stock'], ['Shortlisted at', 'num'], ['Bought (9:15 candle close)', 'num'], ['Sold (3:15 PM)', 'num'],
         ['Day close', 'num'], ['P/L, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
@@ -956,10 +997,11 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     for (const r of list) {
       const tr = el('tr');
       const sc = el('td', 'sym'); sc.appendChild(symBtn(r, mode, r.symbol)); tr.append(el('td', 'num mut', String(r.rank)), sc);
-      tr.append(two(px(r.pick_price), (mode === 'i' ? 'prev close' : 'close') + (madeAt ? ' · ' + madeAt : ''), 'mut'));
+      tr.append(mode === 'r' ? two(px(r.pick_price), 'up ' + pct(r.score) + ' on results', 'pos')
+        : two(px(r.pick_price), (mode === 'i' ? 'prev close' : 'close') + (madeAt ? ' · ' + madeAt : ''), 'mut'));
       tr.append(r.buy_price ? two(px(r.buy_price), dshort(r.buy_date) + ' · 9:20', 'mut') : two('–', r.profit_basis || 'waiting', 'mut'));
-      if (mode === 's') {
-        for (let k = 1; k <= 5; k++) {
+      if (mode !== 'i') {
+        for (const k of dayCols) {
           const c = r['day' + k + '_close'];
           tr.append(c === null || c === undefined || !r.buy_price ? two('–', 'waiting', 'mut')
             : two(px(c), plc(r['day' + k + '_pl']) + ' · ' + pct(r['day' + k + '_pct']), cls(r['day' + k + '_pl'])));
@@ -989,14 +1031,14 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   }
 
   // the latest 3 lists, then older reports on request
-  const older = {i: '', s: ''};
+  const older = {i: '', s: '', r: ''};
   function dayList(type) {
-    const mode = type === 'Intraday' ? 'i' : 's', key = mode === 'i' ? 'for_day' : 'list_date';
+    const mode = type === 'Intraday' ? 'i' : type === 'Results' ? 'r' : 's', key = mode === 'i' ? 'for_day' : 'list_date';
     const rows = ROWS.filter((r) => r.type === type);
     const days = [...new Set(rows.map((r) => r[key]))].filter(Boolean).sort().reverse();
     const box = $(mode + '-days-list'), obox = $(mode + '-older-list'), sel = $(mode + '-older');
     const byDay = (d) => rows.filter((r) => r[key] === d).sort((a, b) => a.rank - b.rank);
-    if (!days.length) { box.replaceChildren(el('p', 'note', 'No list yet. The first one appears after the next run.')); $(mode + '-older-wrap').hidden = true; return; }
+    if (!days.length) { box.replaceChildren(el('p', 'note', mode === 'r' ? 'No results jump yet since 17 Nov 2026. The list fills in results season, when companies publish their quarterly numbers (mostly mid-January to mid-February, April to May, July to August and October to November).' : 'No list yet. The first one appears after the next run.')); $(mode + '-older-wrap').hidden = true; return; }
     box.replaceChildren(...days.slice(0, 3).map((d) => listTable(byDay(d), mode, d)));
     const rest = days.slice(3);
     $(mode + '-older-wrap').hidden = false;
@@ -1009,8 +1051,8 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     const show = older[mode] === 'all' ? rest : (rest.includes(older[mode]) ? [older[mode]] : []);
     obox.replaceChildren(...show.map((d) => listTable(byDay(d), mode, d)));
   }
-  for (const m of ['i', 's']) {
-    $(m + '-older').addEventListener('change', (e) => { older[m] = e.target.value; dayList(m === 'i' ? 'Intraday' : 'Swing'); });
+  for (const m of ['i', 's', 'r']) {
+    $(m + '-older').addEventListener('change', (e) => { older[m] = e.target.value; dayList(m === 'i' ? 'Intraday' : m === 'r' ? 'Results' : 'Swing'); });
   }
 
   // ---------- charts
@@ -1143,7 +1185,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     countUp($('s-days'), S.days, (v) => String(Math.round(v))); $('s-picks').textContent = S.picks;
     $('tile-s-d5').className = 'tile ' + (S.avg_d5 === null ? '' : S.avg_d5 > 0.25 ? 'ok' : 'bad');
     $('tile-s-latest').className = 'tile ' + (S.avg_latest === null ? '' : S.avg_latest > 0 ? 'ok' : 'bad');
-    dayList('Intraday'); dayList('Swing');
+    dayList('Intraday'); dayList('Swing'); dayList('Results'); resultsToday();
     if (!$('intraday').hidden) curve();
     if (!$('swing').hidden) hold();
     first = false;
@@ -1155,7 +1197,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   fetch('data/picks.json?v=' + Date.now(), {cache: 'no-store'})
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((doc) => {
-      ROWS = doc.rows || [];
+      ROWS = doc.rows || []; RT = doc.results_today || null;
       const built = (doc.meta || []).find((m) => m.label === 'Built');
       $('built').textContent = built ? 'Data built ' + built.value + '.' : '';
       show(location.hash === '#swing' ? 'swing' : 'intraday');
