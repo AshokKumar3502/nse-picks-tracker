@@ -149,22 +149,219 @@ dialog.chart::backdrop{background:rgba(0,0,0,.45)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 @keyframes rise{from{transform:translateY(8px);opacity:.001}to{transform:none;opacity:1}}
 @keyframes fade{from{opacity:.001}to{opacity:1}}
+/* ===== design layer: premium trading-desk look (overrides the base styles above) ===== */
+:root{
+  --bg:#f4f7f5; --panel:#ffffff; --raised:#f8faf9; --fg:#0f1a15; --muted:#5a6a62; --line:#e1e8e4;
+  --ok:#0b8f55; --bad:#cf3f3f; --warn:#b26f12; --accent:#0a8f5a; --accent2:#0b7480; --grid:#ebf0ed;
+  --grad:linear-gradient(135deg,#0a8f5a 0%,#0b7480 100%);
+  --shadow:0 1px 2px rgba(16,24,20,.04),0 6px 20px -8px rgba(16,24,20,.10);
+  --shadow-lift:0 2px 4px rgba(16,24,20,.05),0 18px 40px -14px rgba(16,24,20,.22);
+  --glass:rgba(255,255,255,.72); --r:14px; --ease:cubic-bezier(.2,.7,.2,1);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#070b09; --panel:#0e1512; --raised:#121b17; --fg:#e6efe9; --muted:#8b9c93; --line:#1d2925;
+  --ok:#34d690; --bad:#f06b6b; --warn:#eab056; --accent:#34d690; --accent2:#3cc4d0; --grid:#16201c;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -10px rgba(0,0,0,.6);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.45),0 22px 48px -16px rgba(0,0,0,.75);
+  --glass:rgba(10,16,13,.72)}}
+:root[data-theme="dark"]{
+  --bg:#070b09; --panel:#0e1512; --raised:#121b17; --fg:#e6efe9; --muted:#8b9c93; --line:#1d2925;
+  --ok:#34d690; --bad:#f06b6b; --warn:#eab056; --accent:#34d690; --accent2:#3cc4d0; --grid:#16201c;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -10px rgba(0,0,0,.6);
+  --shadow-lift:0 2px 6px rgba(0,0,0,.45),0 22px 48px -16px rgba(0,0,0,.75);
+  --glass:rgba(10,16,13,.72)}
+body{background:var(--bg);background-image:radial-gradient(1200px 520px at 85% -120px,color-mix(in srgb,var(--accent2) 10%,transparent),transparent 70%),radial-gradient(900px 480px at -10% 0,color-mix(in srgb,var(--accent) 9%,transparent),transparent 70%);background-repeat:no-repeat;-webkit-font-smoothing:antialiased}
+::selection{background:color-mix(in srgb,var(--accent) 28%,transparent)}
+.wrap{padding-top:0;gap:24px}
+svg.i,.btn svg,.tab b svg,.theme svg,.totop svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:12px max(16px,env(safe-area-inset-right,0px));padding-top:calc(12px + env(safe-area-inset-top,0px));background:var(--glass);-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--fg);text-decoration:none;font-weight:600;font-size:15px;letter-spacing:-.01em}
+.brand em{font-style:normal;color:var(--muted);font-weight:500}
+.logo{width:30px;height:30px;flex:none;filter:drop-shadow(0 4px 10px color-mix(in srgb,var(--accent) 35%,transparent));transition:transform .5s var(--ease)}
+.brand:hover .logo{transform:rotate(-8deg) scale(1.06)}
+.live{display:inline-flex;align-items:center;gap:7px;font:500 12px var(--mono);color:var(--muted);margin-left:auto}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent)}
+.theme{position:static;display:inline-grid;place-items:center;width:38px;height:38px;padding:0;border-radius:12px;background:var(--panel);color:var(--fg);border:1px solid var(--line);box-shadow:var(--shadow);transition:transform .25s var(--ease),border-color .2s,box-shadow .25s}
+.theme:hover{transform:translateY(-1px) rotate(12deg);border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.theme svg{width:19px;height:19px}
+.theme .sun{display:none}
+:root[data-theme="dark"] .theme .sun{display:block}:root[data-theme="dark"] .theme .moon{display:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .theme .sun{display:block}:root:not([data-theme="light"]) .theme .moon{display:none}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;display:grid;gap:14px;padding:clamp(26px,4.5vw,48px) clamp(20px,4vw,44px);border-radius:22px;border:1px solid var(--line);background:linear-gradient(160deg,var(--panel) 0%,var(--raised) 100%);box-shadow:var(--shadow);isolation:isolate}
+.hero .glow{position:absolute;inset:-40% -20% auto auto;width:70%;aspect-ratio:1;z-index:-1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 22%,transparent) 0%,transparent 62%);filter:blur(10px)}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;opacity:.5;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 70% 80% at 80% 10%,#000 0%,transparent 70%);mask-image:radial-gradient(ellipse 70% 80% at 80% 10%,#000 0%,transparent 70%)}
+.eyebrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;background:var(--grad);color:#fff;font-weight:600;letter-spacing:.08em}
+.hero h1{font-size:clamp(36px,6vw,66px);line-height:1.02;max-width:16ch}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;padding-right:.06em}
+:root[data-theme="dark"] .grad{background:linear-gradient(135deg,#34d690,#3cc4d0)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .grad{background:linear-gradient(135deg,#34d690,#3cc4d0)}}
+:root[data-theme="dark"] .grad,:root:not([data-theme="light"]) .grad{-webkit-background-clip:text;background-clip:text}
+.lede{font-size:clamp(15px,1.6vw,17px);line-height:1.6}
+.cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+
+/* buttons */
+.btn{position:relative;display:inline-flex;align-items:center;gap:9px;padding:12px 18px;border-radius:12px;font:600 14px/1 var(--body);text-decoration:none;cursor:pointer;border:1px solid transparent;transition:transform .2s var(--ease),box-shadow .25s var(--ease),background-color .2s,border-color .2s;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.primary{background:var(--grad);color:#fff;box-shadow:0 8px 22px -8px color-mix(in srgb,var(--accent) 70%,transparent)}
+.btn.primary::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-120%)}
+.btn.primary:hover::after{transform:translateX(120%);transition:transform .8s var(--ease)}
+.btn.ghost{background:var(--panel);color:var(--fg);border-color:var(--line);box-shadow:var(--shadow)}
+.btn.ghost:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary:hover{box-shadow:0 14px 30px -10px color-mix(in srgb,var(--accent) 80%,transparent)}
+.btn:active,.more:active,.theme:active,.ch-tabs button:active{transform:translateY(0) scale(.97)}
+.btn:focus-visible,.tab:focus-visible,.sel:focus-visible,.totop:focus-visible,.ch-tabs button:focus-visible,.ch-x:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.more{border-radius:12px;font-weight:600;box-shadow:var(--shadow);transition:transform .2s var(--ease),border-color .2s}
+.more:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+
+/* tabs: segmented control */
+.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:5px;border:1px solid var(--line);border-radius:16px;background:var(--raised);overflow:visible;box-shadow:inset 0 1px 2px rgba(0,0,0,.04);position:sticky;top:calc(63px + env(safe-area-inset-top,0px));z-index:20}
+.tab-ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc(50% - 7px);border-radius:12px;background:var(--panel);box-shadow:var(--shadow-lift);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));transition:transform .45s var(--ease)}
+.tabs[data-on="swing"] .tab-ind{transform:translateX(calc(100% + 4px))}
+.tab{position:relative;z-index:1;border:0;border-radius:12px;padding:12px 16px;transition:color .25s}
+.tab b{display:inline-flex;align-items:center;gap:8px}
+.tab b svg{width:18px;height:18px;transition:transform .45s var(--ease)}
+.tab[aria-selected="true"]{color:var(--fg)}
+.tab[aria-selected="true"] b svg{color:var(--accent);transform:rotate(-10deg) scale(1.1)}
+.tab:hover:not([aria-selected="true"]){color:var(--fg)}
+@media (max-width:640px){.tab span{display:none}.tab{padding:10px 12px;text-align:center;justify-items:center}}
+
+/* cards and sections */
+.card,.tile,.ix,.about,.foot{border-radius:var(--r);box-shadow:var(--shadow);transition:box-shadow .3s var(--ease),transform .3s var(--ease),border-color .3s}
+.card{padding:22px}
+.card h2{display:flex;align-items:center;gap:10px;font-size:18px;letter-spacing:-.01em}
+.card h2::before{content:"";width:4px;height:18px;border-radius:4px;background:var(--grad)}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 22%,var(--line))}
+.sec > .card:first-of-type{position:relative;border:1px solid transparent;background:linear-gradient(var(--panel),var(--panel)) padding-box,linear-gradient(135deg,color-mix(in srgb,var(--accent) 65%,transparent),color-mix(in srgb,var(--accent2) 30%,var(--line)) 45%,var(--line)) border-box}
+.when{letter-spacing:-.01em}
+.stamp{background:color-mix(in srgb,var(--ok) 10%,transparent);border-color:color-mix(in srgb,var(--ok) 35%,transparent);color:var(--fg)}
+.pick{border-radius:12px;background:var(--panel);box-shadow:var(--shadow);transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .3s}
+.pick::before{width:4px}
+.pick::after{content:"";position:absolute;inset:auto -30% -60% auto;width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--edge,var(--accent)) 16%,transparent),transparent 65%);opacity:0;transition:opacity .35s}
+.pick:hover{transform:translateY(-4px);box-shadow:var(--shadow-lift);border-color:color-mix(in srgb,var(--edge,var(--accent)) 45%,var(--line))}
+.pick:hover::after{opacity:1}
+.tile{padding:20px}
+.tile::after{height:3px;background:var(--acc,var(--grad))}
+.tile:hover,.ix:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift)}
+.ix{border-radius:var(--r)}
+.ix::before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:var(--grad);opacity:.7}
+.big{letter-spacing:-.01em}
+
+/* lists and tables */
+.day{border-radius:12px;background:var(--panel);box-shadow:var(--shadow)}
+.day-head{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 7%,var(--panel)),var(--panel) 60%)}
+th{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--raised)}
+tbody tr{transition:background-color .2s}
+tbody tr:hover{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+tr.total td{background:var(--raised)}
+.scroll{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.chip{font-weight:600;letter-spacing:.02em}
+.chip.ok{background:color-mix(in srgb,var(--ok) 12%,transparent)}
+.chip.bad{background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.chip.warn{background:color-mix(in srgb,var(--warn) 14%,transparent)}
+.symbtn{text-decoration-color:color-mix(in srgb,var(--accent) 45%,transparent);transition:color .2s,text-decoration-color .2s}
+.symbtn::after{display:inline-block;transition:transform .25s var(--ease)}
+.symbtn:hover{text-decoration-color:var(--accent)}
+.symbtn:hover::after{transform:translateX(3px)}
+.older{border-top:1px dashed var(--line);padding-top:14px}
+.sel{appearance:none;-webkit-appearance:none;padding:10px 38px 10px 14px;border-radius:12px;background-color:var(--panel);box-shadow:var(--shadow);cursor:pointer;font-weight:500;transition:border-color .2s,box-shadow .2s;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334a37a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:16px}
+.sel:hover:not(:disabled){border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+
+/* explainers */
+.about{border-left:1px solid var(--line);position:relative;overflow:hidden;padding:16px 20px}
+.about::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--grad)}
+.about summary,.foot summary{list-style:none;display:flex;align-items:center;gap:10px}
+.about summary::-webkit-details-marker,.foot summary::-webkit-details-marker{display:none}
+.about summary::after,.foot summary::after{content:"";margin-left:auto;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg) translate(-2px,-2px);transition:transform .3s var(--ease)}
+.about[open] summary::after,.foot[open] summary::after{transform:rotate(225deg) translate(-2px,-2px)}
+.about[open] dl,.foot[open] dl{animation:rise .4s var(--ease) both}
+.foot{background:var(--panel);border:1px solid var(--line);padding:16px 20px}
+
+/* chart dialog */
+dialog.chart{border-radius:18px;box-shadow:0 30px 80px -20px rgba(0,0,0,.55)}
+dialog.chart::backdrop{background:rgba(4,8,6,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+dialog.chart[open]{animation:pop .35s var(--ease)}
+dialog.chart[open]::backdrop{animation:fade .3s ease-out}
+.ch-head h3{font:400 26px/1 var(--display)}
+.ch-x{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);transition:transform .25s var(--ease),color .2s,border-color .2s}
+.ch-x:hover{transform:rotate(90deg);color:var(--fg);border-color:color-mix(in srgb,var(--bad) 50%,var(--line))}
+.ch-tabs button{padding:7px 12px;transition:transform .2s var(--ease),background-color .2s,border-color .2s,color .2s}
+.ch-tabs button:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.ch-tabs button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+
+/* back to top */
+.totop{position:fixed;right:max(18px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:40;width:46px;height:46px;border-radius:14px;border:0;display:grid;place-items:center;background:var(--grad);color:#fff;cursor:pointer;box-shadow:0 12px 28px -10px color-mix(in srgb,var(--accent) 80%,transparent);opacity:0;transform:translateY(16px) scale(.9);pointer-events:none;transition:opacity .3s,transform .35s var(--ease)}
+.totop svg{width:20px;height:20px}
+.chart svg{max-height:360px}
+
+.totop.show{opacity:1;transform:none;pointer-events:auto}
+.totop:hover{transform:translateY(-3px)}
+
+/* motion */
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 55%,transparent)}80%,100%{box-shadow:0 0 0 9px transparent}}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-6%,8%) scale(1.12)}}
+@keyframes sheen{to{background-position:200% center}}
+.rv{opacity:1}
+@media (prefers-reduced-motion:no-preference){
+  .live i,.stamp i{animation:ping 2s ease-out infinite}
+  .hero .glow{animation:drift 14s ease-in-out infinite}
+  .hero > *:not(.glow){animation:rise .7s var(--ease) both}
+  .hero > .eyebrow{animation-delay:60ms}.hero > h1{animation-delay:140ms}.hero > .lede{animation-delay:220ms}.hero > .cta{animation-delay:300ms}
+  .grad{background-size:200% auto!important;animation:sheen 6s linear infinite}
+  .js .rv{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  .js .rv.in{opacity:1;transform:none}
+  .ix{animation:rise .6s var(--ease) both}.ix:nth-child(2){animation-delay:80ms}.ix:nth-child(3){animation-delay:160ms}
+  tbody tr{animation:fade .5s ease-out both}
+}
+@media (max-width:640px){
+  .topbar .live{display:none}
+  .theme{margin-left:auto}
+  .hero{border-radius:18px}
+  .cta .btn{flex:1 1 100%;justify-content:center}
+  .tabs{top:calc(59px + env(safe-area-inset-top,0px))}
+  .totop{width:42px;height:42px}
+}
+
 </style>
 </head>
 <body>
 <div class="wrap">
-  <button class="theme" id="theme" type="button" aria-label="Switch light or dark">Theme</button>
-  <header style="display:grid;gap:8px">
-    <p class="eyebrow">NSE · bullish lists only · tracking since 17 Nov 2026 · prices to <span id="prices-to">—</span></p>
-    <h1>NSE Picks Tracker</h1>
+  <div class="topbar">
+    <a class="brand" href="#intraday" aria-label="NSE Picks Tracker, home">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="url(#lg)"/><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#19c37d"/><stop offset="1" stop-color="#0e7c86"/></linearGradient></defs>
+        <path d="M9 9v14M16 6v20M23 11v10" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".75"/>
+        <rect x="7" y="12" width="4" height="7" rx="1" fill="#fff"/><rect x="14" y="9" width="4" height="10" rx="1" fill="#fff"/><rect x="21" y="13" width="4" height="5" rx="1" fill="#fff" opacity=".85"/></svg>
+      <span>NSE Picks <em>Tracker</em></span>
+    </a>
+    <span class="live"><i></i>Updated every weekday</span>
+    <button class="theme" id="theme" type="button" aria-label="Switch light or dark">
+      <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5a8.5 8.5 0 1 0 10.7 10.7z"/></svg>
+    </button>
+  </div>
+  <header class="hero">
+    <div class="glow" aria-hidden="true"></div>
+    <p class="eyebrow"><span class="pill">NSE</span> bullish lists only · tracking since 17 Nov 2026 · prices to <span id="prices-to">—</span></p>
+    <h1>Every pick, <span class="grad">every rupee</span>, in the open.</h1>
     <p class="lede" id="lede">Loading the lists…</p>
+    <div class="cta">
+      <a class="btn primary" href="#intraday" data-go="intraday"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 17l5-5 4 4 7-8"/><path d="M15 8h5v5"/></svg>Today's intraday list</a>
+      <a class="btn ghost" href="#swing" data-go="swing"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Swing list, 2 to 5 days</a>
+    </div>
   </header>
 
   <section class="ticker" id="indices" aria-label="Market indices"></section>
 
   <nav class="tabs" role="tablist" aria-label="Lists">
-    <button class="tab" id="tab-intraday" role="tab" aria-selected="true" aria-controls="intraday" type="button"><b>Intraday</b><span>made before 9:15 AM, for that day</span></button>
-    <button class="tab" id="tab-swing" role="tab" aria-selected="false" aria-controls="swing" type="button"><b>Swing</b><span>made after the close, for 2 to 5 days</span></button>
+    <span class="tab-ind" aria-hidden="true"></span>
+    <button class="tab" id="tab-intraday" role="tab" aria-selected="true" aria-controls="intraday" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Intraday</b><span>made before 9:15 AM, for that day</span></button>
+    <button class="tab" id="tab-swing" role="tab" aria-selected="false" aria-controls="swing" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c3 0 3-10 6-10s3 10 6 10 3-6 6-6"/></svg>Swing</b><span>made after the close, for 2 to 5 days</span></button>
   </nav>
 
   <section class="sec" id="intraday" role="tabpanel" aria-labelledby="tab-intraday">
@@ -251,6 +448,7 @@ dialog.chart::backdrop{background:rgba(0,0,0,.45)}
   </details>
 </div>
 
+<button class="totop" id="totop" type="button" aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 <dialog class="chart" id="chart" aria-labelledby="ch-title">
   <div class="ch-head"><h3 id="ch-title">-</h3><span class="sub" id="ch-sub"></span><button class="ch-x" id="ch-close" type="button" aria-label="Close chart">&times;</button></div>
   <div class="ch-tabs" id="ch-tabs" role="group" aria-label="Chart period"></div>
@@ -346,6 +544,28 @@ dialog.chart::backdrop{background:rgba(0,0,0,.45)}
       avg_latest: mean(lat), last_list: last, last_made_on: lastRow.made_on, last_made_at: lastRow.made_at};
   }
   const dayRows = (type, key, day) => ROWS.filter((r) => r.type === type && r[key] === day).sort((a, b) => a.rank - b.rank);
+
+  // ---------- design: sliding tab indicator, reveal on scroll, back to top
+  document.documentElement.classList.add('js');
+  window.addEventListener('load', () => { if (/^#(intraday|swing)$/.test(location.hash)) window.scrollTo(0, 0); }, {once: true});   // open at the top, not at the tab anchor
+  const tabsNav = document.querySelector('.tabs');
+  const syncTabs = () => { tabsNav.dataset.on = $('tab-swing').getAttribute('aria-selected') === 'true' ? 'swing' : 'intraday'; };
+  new MutationObserver(syncTabs).observe($('tab-swing'), {attributes: true, attributeFilter: ['aria-selected']});
+  syncTabs();
+  for (const a of document.querySelectorAll('[data-go]')) a.addEventListener('click', (e) => {
+    e.preventDefault(); show(a.dataset.go);
+    tabsNav.scrollIntoView({behavior: motion ? 'smooth' : 'auto', block: 'start'});
+  });
+  const revealables = document.querySelectorAll('.sec > .card, .sec > .tiles, .sec > .about, .foot');
+  for (const n of revealables) n.classList.add('rv');
+  if ('IntersectionObserver' in window && motion) {
+    const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }, {rootMargin: '0px 0px -8% 0px', threshold: 0.05});
+    for (const n of revealables) io.observe(n);
+  } else for (const n of revealables) n.classList.add('in');
+  const totop = $('totop');
+  const onScroll = () => totop.classList.toggle('show', window.scrollY > 600);
+  window.addEventListener('scroll', onScroll, {passive: true}); onScroll();
+  totop.addEventListener('click', () => window.scrollTo({top: 0, behavior: motion ? 'smooth' : 'auto'}));
 
   // ---------- candle chart: click a stock name
   const chartCache = {};
@@ -651,8 +871,9 @@ dialog.chart::backdrop{background:rgba(0,0,0,.45)}
     lede.append(tx('Since 17 Nov 2026 the 9 AM intraday lists have '), b((I.rupees >= 0 ? 'made ' : 'lost ') + inr(Math.abs(I.rupees)).replace('+', '')),
       tx(' over ' + pl(I.trades, 'trade') + ' on ' + pl(I.days, 'day') + ' (bought at the 9:15 candle close, sold at 3:15 PM, 100 shares each, after charges). '));
     if (!S.picks) lede.append(tx('The first evening swing list is made after today\'s close and bought at 9:20 on the next trading day.'));
-    else { const sp = ROWS.filter((r) => r.type === 'Swing' && N(r.profit_net) !== null).reduce((a, r) => a + N(r.profit_net), 0);
-      lede.append(tx('The evening swing lists hold ' + pl(S.picks, 'pick') + ' from ' + pl(S.days, 'list') + '; at their latest close they stand at '), b(inr(sp)), tx(' after charges.')); }
+    else { const held = ROWS.filter((r) => r.type === 'Swing' && N(r.profit_net) !== null), sp = held.reduce((a, r) => a + N(r.profit_net), 0);
+      if (!held.length) lede.append(tx('The evening swing lists hold ' + pl(S.picks, 'pick') + ' from ' + pl(S.days, 'list') + ', to be bought at 9:20 on the next trading day.'));
+      else lede.append(tx('The evening swing lists hold ' + pl(S.picks, 'pick') + ' from ' + pl(S.days, 'list') + '; at their latest close they stand at '), b(inr(sp)), tx(' after charges.')); }
     // intraday
     $('i-when').textContent = I.last_day ? 'Intraday list for ' + dlong(I.last_day) : '—';
     $('i-made').textContent = I.last_made_at ? 'made ' + time12(I.last_made_at) + (I.last_made_on && I.last_made_on !== I.last_day ? ' on ' + dshort(I.last_made_on) : '') : 'rebuilt later';
