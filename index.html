@@ -220,16 +220,17 @@ svg.i,.btn svg,.tab b svg,.theme svg,.totop svg{fill:none;stroke:currentColor;st
 .more:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
 
 /* tabs: segmented control */
-.tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:5px;border:1px solid var(--line);border-radius:16px;background:var(--raised);overflow:visible;box-shadow:inset 0 1px 2px rgba(0,0,0,.04);position:sticky;top:calc(63px + env(safe-area-inset-top,0px));z-index:20}
-.tab-ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc(50% - 7px);border-radius:12px;background:var(--panel);box-shadow:var(--shadow-lift);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));transition:transform .45s var(--ease)}
+.tabs{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:5px;border:1px solid var(--line);border-radius:16px;background:var(--raised);overflow:visible;box-shadow:inset 0 1px 2px rgba(0,0,0,.04);position:sticky;top:calc(63px + env(safe-area-inset-top,0px));z-index:20}
+.tab-ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 18px) / 3);border-radius:12px;background:var(--panel);box-shadow:var(--shadow-lift);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));transition:transform .45s var(--ease)}
 .tabs[data-on="swing"] .tab-ind{transform:translateX(calc(100% + 4px))}
+.tabs[data-on="scoreboard"] .tab-ind{transform:translateX(calc(200% + 8px))}
 .tab{position:relative;z-index:1;border:0;border-radius:12px;padding:12px 16px;transition:color .25s}
 .tab b{display:inline-flex;align-items:center;gap:8px}
 .tab b svg{width:18px;height:18px;transition:transform .45s var(--ease)}
 .tab[aria-selected="true"]{color:var(--fg)}
 .tab[aria-selected="true"] b svg{color:var(--accent);transform:rotate(-10deg) scale(1.1)}
 .tab:hover:not([aria-selected="true"]){color:var(--fg)}
-@media (max-width:640px){.tab span{display:none}.tab{padding:10px 12px;text-align:center;justify-items:center}}
+@media (max-width:640px){.tab span{display:none}.tab{padding:10px 6px;text-align:center;justify-items:center;min-width:0}.tab b{font-size:14px;gap:6px;white-space:nowrap}.tab b svg{width:16px;height:16px}}
 
 /* cards and sections */
 .card,.tile,.ix,.about,.foot{border-radius:var(--r);box-shadow:var(--shadow);transition:box-shadow .3s var(--ease),transform .3s var(--ease),border-color .3s}
@@ -432,6 +433,28 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 .rchip.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line));background:color-mix(in srgb,var(--bad) 8%,transparent)}
 .rchip.mut{color:var(--muted)}
 .rchip b{color:var(--fg)}
+
+/* scoreboard */
+.sb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.sb-card{position:relative;display:grid;gap:8px;align-content:start;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--raised);overflow:hidden;transition:transform .3s var(--ease),box-shadow .3s var(--ease),border-color .3s}
+.sb-card::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--muted);opacity:.5}
+.sb-card.good::before{background:var(--ok);opacity:1}.sb-card.bad::before{background:var(--bad);opacity:1}
+.sb-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift)}
+.sb-top{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;justify-content:space-between}
+.sb-top h3{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em}
+.sb-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--panel)}
+.sb-pill.good{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line));background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.sb-pill.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,var(--line));background:color-mix(in srgb,var(--bad) 10%,transparent)}
+.sb-big{font-size:30px;font-weight:650;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
+.sb-sub{font-size:12px;color:var(--muted)}
+.sb-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin:6px 0 2px}
+.sb-stats dt{font:500 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.sb-stats dd{margin:2px 0 0;font-weight:600;font-variant-numeric:tabular-nums}
+.sb-prog{height:6px;border-radius:99px;background:var(--grid);overflow:hidden}
+.sb-prog i{display:block;height:100%;width:var(--w);border-radius:99px;background:var(--grad)}
+.sb-exp{margin:4px 0 0;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);padding-top:8px}
+@media (prefers-reduced-motion:no-preference){.sb-prog i{animation:growx 1s var(--ease) both}.sb-card{animation:rise .5s var(--ease) both}.sb-card:nth-child(2){animation-delay:60ms}.sb-card:nth-child(3){animation-delay:120ms}.sb-card:nth-child(4){animation-delay:180ms}.sb-card:nth-child(5){animation-delay:240ms}.sb-card:nth-child(6){animation-delay:300ms}}
+@keyframes growx{from{width:0}}
 </style>
 </head>
 <body>
@@ -476,6 +499,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     <span class="tab-ind" aria-hidden="true"></span>
     <button class="tab" id="tab-intraday" role="tab" aria-selected="true" aria-controls="intraday" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Intraday</b><span>made before 9:15 AM, for that day</span></button>
     <button class="tab" id="tab-swing" role="tab" aria-selected="false" aria-controls="swing" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c3 0 3-10 6-10s3 10 6 10 3-6 6-6"/></svg>Swing</b><span>made after the close, for 2 to 5 days</span></button>
+    <button class="tab" id="tab-scoreboard" role="tab" aria-selected="false" aria-controls="scoreboard" type="button"><b><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.6 3M17 6h2.5a2.5 2.5 0 0 1-2.6 3M12 13v4M8.5 20h7M10 17h4"/></svg>Scoreboard</b><span>which rule is really earning</span></button>
   </nav>
 
   <section class="sec" id="intraday" role="tabpanel" aria-labelledby="tab-intraday">
@@ -567,6 +591,28 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     </div>
   </section>
 
+  <section class="sec" id="scoreboard" role="tabpanel" aria-labelledby="tab-scoreboard" hidden>
+    <details class="about" id="about-score">
+      <summary>How the scoreboard works</summary>
+      <dl>
+        <dt>What it shows</dt><dd>The real record of every list since 17 Nov 2026, traded your way: bought at the close of the 9:15 AM candle, 100 shares, sold at 3:15 PM (intraday), after 5 days (swing) or after 20 days (results jump). Only finished trades count.</dd>
+        <dt>Compared with</dt><dd>The average stock bought and sold at the same times: every F&amp;O stock from open to close for intraday, every NIFTY 500 stock from the buy day's open to the sell day's close for swing. "Beat the market by" is before charges on both sides, so it is a fair comparison.</dd>
+        <dt>When to trust it</dt><dd>A rule needs at least 20 finished trades before the scoreboard gives a verdict. "Beating the market" also needs a clear lead, not one lucky week (a t-value of 2 or more).</dd>
+        <dt>What happens next</dt><dd>A rule that lags the market after 20 or more trades gets fixed or dropped. A rule that beats it keeps its place.</dd>
+      </dl>
+    </details>
+    <div class="card">
+      <h2>Rule scoreboard</h2>
+      <p class="note" id="sb-note">—</p>
+      <div class="sb-grid" id="sb-grid"></div>
+    </div>
+    <div class="card">
+      <h2>Running total by rule</h2>
+      <p class="note">Rupees made or lost after charges on 100 shares a trade, adding up each finished trade.</p>
+      <div class="chart" id="sb-curve"></div>
+    </div>
+  </section>
+
   <details class="foot">
     <summary>How these lists are made and scored</summary>
     <dl>
@@ -610,7 +656,60 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   const el = (tag, cl, text) => { const e = document.createElement(tag); if (cl) e.className = cl; if (text !== undefined) e.textContent = text; return e; };
   const mean = (a) => a.length ? Math.round(100 * a.reduce((x, y) => x + y, 0) / a.length) / 100 : null;
   const limit = {i: 10, s: 10};
-  let ROWS = [], RT = null, first = true;
+  let ROWS = [], RT = null, SB = null, first = true;
+  function scoreboardView() {
+    const grid = $('sb-grid');
+    if (!SB || !(SB.rows || []).length) { grid.replaceChildren(el('p', 'note', 'The scoreboard appears after the next evening update.')); return; }
+    const closed = SB.rows.reduce((a, r) => a + (r.closed || 0), 0);
+    $('sb-note').textContent = closed + ' finished ' + (closed === 1 ? 'trade' : 'trades') + ' so far across all rules. Each rule needs ' +
+      SB.min_trades + ' finished trades before it is judged. Updated ' + SB.built + '.';
+    grid.replaceChildren(...SB.rows.map((r) => {
+      const c = el('article', 'sb-card ' + (r.tone || 'wait'));
+      const top = el('div', 'sb-top');
+      top.append(el('h3', '', r.rule), el('span', 'sb-pill ' + (r.tone || 'wait'), r.verdict));
+      const big = el('div', 'sb-big ' + cls(r.total_net_rs));
+      big.textContent = r.closed ? inr(r.total_net_rs) : '–';
+      const bigSub = el('span', 'sb-sub', r.closed ? 'after charges, 100 shares a trade' : (r.waiting ? r.waiting + ' waiting to be bought' : '') + (r.running ? (r.waiting ? ', ' : '') + r.running + ' running' : '') || 'no trades yet');
+      const stats = el('dl', 'sb-stats');
+      const st = (k, v, cl) => { const d = el('div'); d.append(el('dt', '', k), el('dd', cl || '', v)); stats.appendChild(d); };
+      st('Finished trades', r.closed + (r.running ? ' (+' + r.running + ' running)' : ''));
+      st('Made money', r.closed ? r.win_pct.toFixed(0) + '%' : '–');
+      st('Average a trade', r.closed ? pct(r.avg_net_pct) : '–', cls(r.avg_net_pct));
+      st('Beat the market by', r.edge_pct === null || r.edge_pct === undefined ? '–' : (r.edge_pct >= 0 ? '+' : '−') + Math.abs(r.edge_pct).toFixed(2) + ' pts', cls(r.edge_pct));
+      const prog = el('div', 'sb-prog'); prog.setAttribute('role', 'progressbar'); prog.setAttribute('aria-valuemin', '0');
+      prog.setAttribute('aria-valuemax', String(SB.min_trades)); prog.setAttribute('aria-valuenow', String(Math.min(r.closed, SB.min_trades)));
+      prog.setAttribute('aria-label', r.closed + ' of ' + SB.min_trades + ' trades needed');
+      const bar = el('i'); bar.style.setProperty('--w', Math.min(100, r.closed / SB.min_trades * 100) + '%'); prog.appendChild(bar);
+      const pl = el('span', 'sb-sub', Math.min(r.closed, SB.min_trades) + ' of ' + SB.min_trades + ' trades to a verdict');
+      c.append(top, big, bigSub, stats, prog, pl, el('p', 'sb-exp', 'Before going live: ' + r.expected));
+      return c;
+    }));
+    // running totals
+    const host = $('sb-curve'), lines = SB.rows.filter((r) => (r.curve || []).length);
+    if (!lines.length || lines.every((r) => r.curve.length < 2)) {
+      host.replaceChildren(el('p', 'note', lines.length ? 'The lines fill in as more trades finish (one day so far).' : 'No finished trade yet.'));
+      return;
+    }
+    const W = Math.max(320, host.clientWidth), H = 280, m = {t: 14, r: 16, b: 28, l: 64};
+    const all = lines.flatMap((r) => r.curve), dts = [...new Set(all.map((p) => p[0]))].sort();
+    const x = d3.scalePoint().domain(dts).range([m.l, W - m.r]).padding(0.3);
+    const y = d3.scaleLinear().domain(d3.extent([0, ...all.map((p) => p[1])])).nice().range([H - m.b, m.t]);
+    const svg = d3.create('svg').attr('viewBox', '0 0 ' + W + ' ' + H).attr('role', 'img').attr('aria-label', 'Running total of each rule');
+    svg.append('g').attr('class', 'grid').selectAll('line').data(y.ticks(5)).join('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y).attr('y2', y);
+    svg.append('line').attr('class', 'zero').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0));
+    svg.append('g').attr('class', 'axis').attr('transform', 'translate(0,' + (H - m.b) + ')').call(d3.axisBottom(x).tickFormat((d) => dshort(d)).tickSizeOuter(0));
+    svg.append('g').attr('class', 'axis').attr('transform', 'translate(' + m.l + ',0)').call(d3.axisLeft(y).ticks(5).tickFormat((v) => inr(v)).tickSizeOuter(0));
+    const col = ['var(--accent)', 'var(--accent2)', 'var(--warn)', '#8b6fd6', '#d66fa8', 'var(--muted)'];
+    lines.forEach((r, i) => {
+      svg.append('path').attr('d', d3.line().x((p) => x(p[0])).y((p) => y(p[1]))(r.curve)).attr('fill', 'none').attr('stroke', col[i % col.length]).attr('stroke-width', 2.2);
+      const last = r.curve[r.curve.length - 1];
+      svg.append('circle').attr('cx', x(last[0])).attr('cy', y(last[1])).attr('r', 3.5).attr('fill', col[i % col.length]);
+    });
+    host.replaceChildren(svg.node());
+    const leg = el('div', 'ch-legend');
+    lines.forEach((r, i) => { const s = el('span'); const k = el('i', 'box'); k.style.color = col[i % col.length]; s.append(k, r.rule); leg.appendChild(s); });
+    host.appendChild(leg);
+  }
   function resultsToday() {
     const st = $('r-status'), chips = $('r-chips');
     chips.replaceChildren();
@@ -654,7 +753,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 
   // tabs, routed on #intraday / #swing
   function show(which) {
-    for (const id of ['intraday', 'swing']) {
+    for (const id of ['intraday', 'swing', 'scoreboard']) {
       $(id).hidden = id !== which;
       const t = $('tab-' + id); t.setAttribute('aria-selected', String(id === which)); t.tabIndex = id === which ? 0 : -1;
     }
@@ -663,7 +762,9 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   }
   $('tab-intraday').addEventListener('click', () => show('intraday'));
   $('tab-swing').addEventListener('click', () => show('swing'));
-  window.addEventListener('hashchange', () => show(location.hash === '#swing' ? 'swing' : 'intraday'));
+  $('tab-scoreboard').addEventListener('click', () => show('scoreboard'));
+  const fromHash = () => ({'#swing': 'swing', '#scoreboard': 'scoreboard'})[location.hash] || 'intraday';
+  window.addEventListener('hashchange', () => show(fromHash()));
 
   function countUp(node, v, fmt) {
     if (v === null || v === undefined) { node.textContent = '–'; return; }
@@ -715,11 +816,11 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   document.documentElement.classList.add('js');
   window.addEventListener('load', () => {     // a fresh visit opens at the top, not at the tab anchor; a reload keeps its place
     const nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
-    if (/^#(intraday|swing)$/.test(location.hash) && (!nav || nav.type === 'navigate')) setTimeout(() => window.scrollTo(0, 0), 0);
+    if (/^#(intraday|swing|scoreboard)$/.test(location.hash) && (!nav || nav.type === 'navigate')) setTimeout(() => window.scrollTo(0, 0), 0);
   }, {once: true});   // open at the top, not at the tab anchor
   const tabsNav = document.querySelector('.tabs');
-  const syncTabs = () => { tabsNav.dataset.on = $('tab-swing').getAttribute('aria-selected') === 'true' ? 'swing' : 'intraday'; };
-  new MutationObserver(syncTabs).observe($('tab-swing'), {attributes: true, attributeFilter: ['aria-selected']});
+  const syncTabs = () => { tabsNav.dataset.on = ['swing', 'scoreboard'].find((id) => $('tab-' + id).getAttribute('aria-selected') === 'true') || 'intraday'; };
+  for (const id of ['swing', 'scoreboard']) new MutationObserver(syncTabs).observe($('tab-' + id), {attributes: true, attributeFilter: ['aria-selected']});
   syncTabs();
   for (const a of document.querySelectorAll('[data-go]')) a.addEventListener('click', (e) => {
     e.preventDefault(); show(a.dataset.go);
@@ -1185,7 +1286,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     countUp($('s-days'), S.days, (v) => String(Math.round(v))); $('s-picks').textContent = S.picks;
     $('tile-s-d5').className = 'tile ' + (S.avg_d5 === null ? '' : S.avg_d5 > 0.25 ? 'ok' : 'bad');
     $('tile-s-latest').className = 'tile ' + (S.avg_latest === null ? '' : S.avg_latest > 0 ? 'ok' : 'bad');
-    dayList('Intraday'); dayList('Swing'); dayList('Results'); resultsToday();
+    dayList('Intraday'); dayList('Swing'); dayList('Results'); resultsToday(); scoreboardView();
     if (!$('intraday').hidden) curve();
     if (!$('swing').hidden) hold();
     first = false;
@@ -1197,10 +1298,10 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   fetch('data/picks.json?v=' + Date.now(), {cache: 'no-store'})
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((doc) => {
-      ROWS = doc.rows || []; RT = doc.results_today || null;
+      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null;
       const built = (doc.meta || []).find((m) => m.label === 'Built');
       $('built').textContent = built ? 'Data built ' + built.value + '.' : '';
-      show(location.hash === '#swing' ? 'swing' : 'intraday');
+      show(fromHash());
     })
     .catch((e) => { $('lede').textContent = 'The data could not be loaded (' + e.message + '). Try refreshing the page.'; });
 })();
