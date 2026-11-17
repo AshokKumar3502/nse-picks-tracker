@@ -84,6 +84,7 @@ td.strong{font-weight:600}
 tr.total td{border-top:2px solid var(--line);font-weight:600;background:var(--panel)}
 table.ledger td{vertical-align:top}
 .older{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-top:6px;border-top:1px dashed var(--line)}
+.older .sel:disabled{opacity:.6;cursor:not-allowed}
 .older label{font:500 12px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
 .sel{font:13px var(--body);color:var(--fg);background:var(--raised);border:1px solid var(--line);border-radius:8px;padding:8px 10px;max-width:100%}
 .ticker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
@@ -414,7 +415,9 @@ table.ledger td{vertical-align:top}
     if (!days.length) { box.replaceChildren(el('p', 'note', 'No list yet. The first one appears after the next run.')); $(mode + '-older-wrap').hidden = true; return; }
     box.replaceChildren(...days.slice(0, 3).map((d) => listTable(byDay(d), mode, d)));
     const rest = days.slice(3);
-    $(mode + '-older-wrap').hidden = !rest.length;
+    $(mode + '-older-wrap').hidden = false;
+    sel.disabled = !rest.length;
+    if (!rest.length) { sel.replaceChildren(new Option('None yet: from the 4th ' + (mode === 'i' ? 'trading day' : 'list') + ', older days move here', '')); obox.replaceChildren(); return; }
     sel.replaceChildren(new Option('Choose a day (' + rest.length + ' older)', ''), new Option('Show all older reports', 'all'),
       ...rest.map((d) => { const n = byDay(d); const s = n.filter((r) => N(r.profit_net) !== null).reduce((a, r) => a + N(r.profit_net), 0);
         return new Option(dlong(d) + (n.some((r) => N(r.profit_net) !== null) ? '  ·  ' + inr(s) : ''), d); }));
