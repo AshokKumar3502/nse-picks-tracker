@@ -4,7 +4,7 @@
     python publish.py                      # from this folder
     python publish.py --source PATH        # another picks.json
 
-Only data/picks.json, data/indices.json and data/charts/ are changed. Nothing is pushed when the data has not changed.
+Only data/picks.json, data/indices.json, data/charts/ and heatmap.html are changed. Nothing is pushed when the data has not changed.
 """
 import argparse
 import os
@@ -40,7 +40,15 @@ def main():
         for name in os.listdir(charts):
             if name.endswith(".json"):
                 shutil.copyfile(os.path.join(charts, name), os.path.join(out, name))
-    git("add", "data/picks.json", "data/indices.json", "data/charts")
+    heat = os.path.join(os.path.dirname(os.path.dirname(a.source)), "heatmap", "latest.json")
+    if os.path.exists(heat):           # the evening heatmap, as heatmap.html on the site
+        import json
+        root = os.path.dirname(os.path.dirname(os.path.dirname(a.source)))
+        src = json.load(open(heat, encoding="utf-8")).get("html") or ""
+        src = src if os.path.isabs(src) else os.path.join(root, src.replace("\\", os.sep))
+        if os.path.exists(src):
+            shutil.copyfile(src, os.path.join(HERE, "heatmap.html"))
+    git("add", "data/picks.json", "data/indices.json", "data/charts", "heatmap.html")
     if not git("diff", "--cached", "--quiet").returncode:
         print("No change in the data: nothing to publish.")
         return 0
