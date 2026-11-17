@@ -83,6 +83,9 @@ td.sym{font-weight:600;font-family:var(--body)}
 td.strong{font-weight:600}
 tr.total td{border-top:2px solid var(--line);font-weight:600;background:var(--panel)}
 table.ledger td{vertical-align:top}
+.older{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-top:6px;border-top:1px dashed var(--line)}
+.older label{font:500 12px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.sel{font:13px var(--body);color:var(--fg);background:var(--raised);border:1px solid var(--line);border-radius:8px;padding:8px 10px;max-width:100%}
 .pos{color:var(--ok)}.neg{color:var(--bad)}.mut{color:var(--muted)}
 .chip{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11px;border:1px solid var(--line);color:var(--muted)}
 .chip.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,transparent)}
@@ -135,20 +138,21 @@ table.ledger td{vertical-align:top}
       <div class="picks" id="i-latest"></div>
     </div>
     <div class="card">
-      <h2>Intraday lists, day by day</h2>
-      <p class="note">Newest first. For each stock: the price when it was shortlisted (the previous close), that morning's open, where the fixed breakout rule bought and sold, the day's close, and the profit on 100 shares before and after Zerodha intraday charges. "No breakout" means the rule never bought.</p>
+      <h2>Intraday lists: latest 3 days</h2>
+      <p class="note">Your plan: buy at the close of the 9:15 AM five-minute candle (the 9:20 price), sell at the 3:15 PM price, 100 shares of each stock. P/L is before charges; "After charges" takes off Zerodha intraday charges.</p>
       <div class="days" id="i-days-list"></div>
-      <button class="more" id="i-more" type="button">Show 10 more days</button>
+      <div class="older" id="i-older-wrap"><label for="i-older">Older reports</label><select class="sel" id="i-older"></select></div>
+      <div class="days" id="i-older-list"></div>
     </div>
     <div class="tiles">
       <div class="tile" id="tile-i-total"><span class="label">Running total</span><span class="big" id="i-total">—</span><span class="sub">100 shares a trade, after charges</span></div>
       <div class="tile" id="tile-i-up"><span class="label">Rose on the day</span><span class="big" id="i-up">—</span><span class="sub">open to close, of <b id="i-up-n">—</b> picks</span></div>
-      <div class="tile"><span class="label">Breakout trades</span><span class="big" id="i-trades">—</span><span class="sub"><b id="i-wins">—</b> made money after charges</span></div>
+      <div class="tile"><span class="label">Trades</span><span class="big" id="i-trades">—</span><span class="sub"><b id="i-wins">—</b> made money after charges</span></div>
       <div class="tile"><span class="label">Lists made</span><span class="big" id="i-days">—</span><span class="sub"><b id="i-live">—</b> live at 9 AM, the rest rebuilt later</span></div>
     </div>
     <div class="card">
       <h2>Running total, day by day</h2>
-      <p class="note">Each bullish name traded by one fixed rule: buy when a 5-minute candle closes above the first 15 minutes' high, stop at the middle of that range, target as far above as the stop is below, out by 3 PM. 100 shares a trade, after Zerodha charges. Bars are each day's result; the line is the total.</p>
+      <p class="note">Every name on the list bought at the 9:15 candle close and sold at 3:15 PM, 100 shares each, after Zerodha charges. Bars are each day's result; the line is the running total.</p>
       <div class="chart" id="i-curve"></div>
     </div>
   </section>
@@ -159,10 +163,11 @@ table.ledger td{vertical-align:top}
       <div class="picks" id="s-latest"></div>
     </div>
     <div class="card">
-      <h2>Swing lists, day by day</h2>
-      <p class="note">Newest first. For each stock: the price when it was shortlisted (that day's close), the buy at the next morning's open, the closing price on each of the next 5 trading days with the change from the buy, and the profit on 100 shares sold at the 5th day's close (or the latest close while it runs), before and after delivery charges.</p>
+      <h2>Swing lists: latest 3 lists</h2>
+      <p class="note">Your plan: buy at the close of the 9:15 AM five-minute candle on the first session after the list, then hold. Each day shows the closing price and the profit or loss on 100 shares at that close. The final P/L sells at the day 5 close (or the latest close while it runs); "After charges" takes off delivery charges.</p>
       <div class="days" id="s-days-list"></div>
-      <button class="more" id="s-more" type="button">Show 10 more lists</button>
+      <div class="older" id="s-older-wrap"><label for="s-older">Older reports</label><select class="sel" id="s-older"></select></div>
+      <div class="days" id="s-older-list"></div>
     </div>
     <div class="tiles">
       <div class="tile" id="tile-s-d5"><span class="label">Average after 5 days</span><span class="big" id="s-d5">—</span><span class="sub">from the next open, before charges (<b id="s-d5-n">—</b> picks)</span></div>
@@ -181,10 +186,10 @@ table.ledger td{vertical-align:top}
     <summary>How these lists are made and scored</summary>
     <dl>
       <dt>Intraday list</dt><dd>The morning desk's bullish names, made before the 9:15 open from the previous close and overnight data, for that day only. Lists before 16 Nov 2026 were rebuilt later from each day's data, so they show no time.</dd>
-      <dt>Intraday result</dt><dd>One fixed breakout rule (above), 100 shares a trade, after Zerodha intraday charges; the buy and sell prices include a small slippage. "No breakout" means the rule never bought.</dd>
+      <dt>Intraday plan</dt><dd>Buy every name at the close of the 9:15 AM five-minute candle, sell at the 3:15 PM price, 100 shares each, after Zerodha intraday charges.</dd>
       <dt>Swing list</dt><dd>Made after the close: the names that passed every swing safety check, plus any from the tested swing rule. Meant to be held 2 to 5 sessions.</dd>
       <dt>Judge</dt><dd>A fixed-rule check on each name: TAKE (no red flag), WAIT (3 or more warnings), SKIP (a hard red flag).</dd>
-      <dt>Moves</dt><dd>From the entry (the next morning's open) to that close, before charges.</dd>
+      <dt>Swing plan</dt><dd>Buy at the close of the 9:15 AM five-minute candle on the first session after the list; each day's P/L is that day's close against the buy, on 100 shares; the final P/L sells at the day 5 close, after delivery charges (STT, stamp, exchange, GST, DP).</dd>
     </dl>
     <p>Prices are NSE's own end-of-day files. Updated every weekday evening. Past results, not predictions and not financial advice.</p>
     <p class="status" id="built">—</p>
@@ -233,8 +238,6 @@ table.ledger td{vertical-align:top}
   $('tab-intraday').addEventListener('click', () => show('intraday'));
   $('tab-swing').addEventListener('click', () => show('swing'));
   window.addEventListener('hashchange', () => show(location.hash === '#swing' ? 'swing' : 'intraday'));
-  $('i-more').addEventListener('click', () => { limit.i += 10; dayList('Intraday'); });
-  $('s-more').addEventListener('click', () => { limit.s += 10; dayList('Swing'); });
 
   function countUp(node, v, fmt) {
     if (v === null || v === undefined) { node.textContent = '–'; return; }
@@ -261,7 +264,7 @@ table.ledger td{vertical-align:top}
   function intraDaily() {
     const by = new Map();
     for (const r of ROWS) {
-      if (r.type !== 'Intraday' || !r.for_day || r.intraday_outcome === 'not scored yet') continue;
+      if (r.type !== 'Intraday' || !r.for_day || N(r.profit_net) === null) continue;
       const e = by.get(r.for_day) || {for_day: r.for_day, rupees: 0, trades: 0};
       if (N(r.profit_net) !== null) { e.rupees += N(r.profit_net); e.trades += 1; }
       by.set(r.for_day, e);
@@ -284,92 +287,106 @@ table.ledger td{vertical-align:top}
 
   // ---------- cards
   function pickCard(r, mode) {
-    const val = mode === 'i' ? r.profit_net : r.latest_pct;
+    const val = r.profit_net;
     const main = val === null || val === undefined
       ? (mode === 'i' ? (r.intraday_outcome === 'not scored yet' ? 'waiting' : 'no breakout') : 'waiting')
-      : (mode === 'i' ? inr(val) : pct(val));
+      : inr(val);
     const n = N(val);
     const c = el('div', 'pick' + (n === null ? '' : n > 0 ? ' up' : ' down'));
     c.append(el('span', 'sym', r.rank + '. ' + r.symbol), el('span', 'res ' + cls(val), main),
-      el('span', 'px', mode === 'i' ? 'open ' + px(r.entry_price) + ' · day ' + pct(r.day1_pct)
-                                    : 'entry ' + px(r.entry_price) + ' · ' + (r.sessions_after || 0) + ' of 5 days'),
+      el('span', 'px', mode === 'i' ? 'bought ' + px(r.buy_price) + ' · sold ' + px(r.sell_price)
+                                    : 'bought ' + px(r.buy_price) + ' · ' + (r.sessions_after || 0) + ' of 5 days'),
       el('span', 'why', (r.verdict ? 'Judge ' + r.verdict + ' · ' : '') + (mode === 'i'
-        ? (N(r.profit_net) !== null ? r.intraday_outcome + (r.entry_time ? ' (bought ' + r.entry_time + ')' : '') : (r.reason || ''))
+        ? (N(r.profit_net) !== null ? '100 shares, after charges' : (r.profit_basis || r.reason || ''))
         : (r.plan_stop ? 'stop ' + px(r.plan_stop) + ' · target ' + px(r.plan_target) : (r.reason || '')))));
     return c;
   }
 
   // ---------- day ledger
-  function dayList(type) {
-    const mode = type === 'Intraday' ? 'i' : 's', key = mode === 'i' ? 'for_day' : 'list_date';
-    const box = $(mode + '-days-list');
-    const rows = ROWS.filter((r) => r.type === type);
-    const days = [...new Set(rows.map((r) => r[key]))].filter(Boolean).sort().reverse();
-    $(mode + '-more').hidden = days.length <= limit[mode];
-    if (!days.length) { box.replaceChildren(el('p', 'note', 'No list yet. The first one appears after the next run.')); return; }
+  // one table for one list
+  function listTable(list, mode, day) {
     const two = (top, bottom, cl) => { const td = el('td', 'num stack'); td.append(el('span', 'top', top), el('span', 'bot ' + (cl || ''), bottom)); return td; };
     const chip = (v) => v ? el('span', 'chip ' + (v === 'TAKE' ? 'ok' : v === 'SKIP' ? 'bad' : 'warn'), v) : el('span', 'mut', '–');
-    const out = [];
-    for (const day of days.slice(0, limit[mode])) {
-      const list = rows.filter((r) => r[key] === day).sort((a, b) => a.rank - b.rank);
-      const r0 = list[0];
-      const madeAt = r0.made_at ? time12(r0.made_at) + (r0.made_on && r0.made_on !== (mode === 'i' ? day : r0.list_date) ? ' on ' + dshort(r0.made_on) : '') : null;
-      const d = el('div', 'day'), head = el('div', 'day-head');
-      const title = mode === 'i' ? 'For ' + dlong(day) : 'Shortlisted ' + dlong(day) + ' · hold 2 to 5 days';
-      const sc = list.filter((r) => N(r.profit_net) !== null);
-      const tot = sc.reduce((a, r) => a + N(r.profit_net), 0);
-      head.append(el('b', '', title), el('span', '', (madeAt ? 'shortlisted at ' + madeAt : 'rebuilt later, no time') + ' · ' +
-        (sc.length ? 'total ' + inr(tot) + ' on ' + sc.length + (mode === 'i' ? ' trades' : ' stocks') + ' (100 shares each, after charges)' : (mode === 'i' && r0.intraday_outcome === 'not scored yet' ? 'scored after 3:45 PM' : 'no result yet'))));
-      const t = el('table', 'ledger'), thead = el('thead'), hr = el('tr'), tb = el('tbody');
-      let heads;
-      if (mode === 's') {
-        const dd = [1, 2, 3, 4, 5].map((k) => { const x = list.find((r) => r['day' + k + '_date']); return x ? dshort(x['day' + k + '_date']) : 'waiting'; });
-        heads = [['#', 'num'], ['Stock'], ['Shortlisted at', 'num'], ['Bought (next open)', 'num'],
-          ['Day 1 · ' + dd[0], 'num'], ['Day 2 · ' + dd[1], 'num'], ['Day 3 · ' + dd[2], 'num'], ['Day 4 · ' + dd[3], 'num'], ['Day 5 · ' + dd[4], 'num'],
-          ['Profit, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
-      } else {
-        heads = [['#', 'num'], ['Stock'], ['Shortlisted at', 'num'], ['Open', 'num'], ['Bought', 'num'], ['Sold', 'num'], ['Day close', 'num'],
-          ['Profit, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
-      }
-      for (const [label, c] of heads) hr.appendChild(el('th', c || '', label));
-      thead.appendChild(hr);
-      for (const r of list) {
-        const tr = el('tr');
-        tr.append(el('td', 'num mut', String(r.rank)), el('td', 'sym', r.symbol));
-        tr.append(two(px(r.pick_price), madeAt ? (mode === 'i' ? 'prev close · ' : '') + madeAt : (mode === 'i' ? 'prev close' : 'close'), 'mut'));
-        if (mode === 's') {
-          tr.append(two(px(r.entry_price), r.entry_date ? dshort(r.entry_date) + ' open' : 'next open', 'mut'));
-          for (let k = 1; k <= 5; k++) {
-            const c = r['day' + k + '_close'];
-            tr.append(c === null || c === undefined ? two('–', 'waiting', 'mut') : two(px(c), pct(r['day' + k + '_pct']), cls(r['day' + k + '_pct'])));
-          }
-        } else {
-          tr.append(two(px(r.entry_price), 'at 9:15', 'mut'));
-          tr.append(r.rule_entry ? two(px(r.rule_entry), 'at ' + r.entry_time, 'mut') : two('–', r.intraday_outcome === 'not scored yet' ? 'not scored yet' : 'no breakout', 'mut'));
-          tr.append(r.rule_exit ? two(px(r.rule_exit), (r.exit_time ? 'at ' + r.exit_time + ' · ' : '') + (r.intraday_outcome || ''), r.intraday_outcome === 'target' ? 'pos' : r.intraday_outcome === 'stop' ? 'neg' : 'mut') : two('–', '', 'mut'));
-          tr.append(two(px(r.day1_close), pct(r.day1_pct), cls(r.day1_pct)));
-        }
-        const g = el('td', 'num ' + cls(r.profit_gross), r.profit_gross === null || r.profit_gross === undefined ? '–' : inr(r.profit_gross));
-        const n = el('td', 'num strong ' + cls(r.profit_net), r.profit_net === null || r.profit_net === undefined ? '–' : inr(r.profit_net));
-        if (r.profit_basis && mode === 's') n.title = 'sold at the ' + r.profit_basis;
-        const j = el('td'); j.appendChild(chip(r.verdict));
-        tr.append(g, n, j);
-        tb.appendChild(tr);
-      }
-      if (sc.length) {
-        const tf = el('tr', 'total');
-        tf.append(el('td'), el('td', 'sym', 'Total'));
-        for (let k = 0; k < heads.length - 5; k++) tf.append(el('td'));
-        tf.append(el('td', 'num ' + cls(sc.reduce((a, r) => a + N(r.profit_gross), 0)), inr(sc.reduce((a, r) => a + N(r.profit_gross), 0))),
-          el('td', 'num strong ' + cls(tot), inr(tot)), el('td'));
-        tb.appendChild(tf);
-      }
-      t.append(thead, tb);
-      const wrap = el('div', 'scroll'); wrap.appendChild(t);
-      d.append(head, wrap);
-      out.push(d);
+    const plc = (v) => v === null || v === undefined ? '–' : inr(v);
+    const r0 = list[0];
+    const madeAt = r0.made_at ? time12(r0.made_at) + (r0.made_on && r0.made_on !== day ? ' on ' + dshort(r0.made_on) : '') : null;
+    const d = el('div', 'day'), head = el('div', 'day-head');
+    const sc = list.filter((r) => N(r.profit_net) !== null);
+    const tot = sc.reduce((a, r) => a + N(r.profit_net), 0), gtot = sc.reduce((a, r) => a + N(r.profit_gross), 0);
+    const buyDay = (list.find((r) => r.buy_date) || {}).buy_date;
+    head.append(el('b', '', mode === 'i' ? 'Intraday · ' + dlong(day) : 'Swing · shortlisted ' + dlong(day)),
+      el('span', '', (madeAt ? 'shortlisted at ' + madeAt : 'rebuilt later, no time') + ' · ' +
+        (mode === 's' ? 'bought ' + (buyDay ? dshort(buyDay) : 'next session') + ' at the 9:15 candle close · ' : 'bought at the 9:15 candle close, sold at 3:15 PM · ') +
+        (sc.length ? 'total ' + inr(tot) + ' after charges' : 'no result yet')));
+    let heads;
+    if (mode === 's') {
+      const dd = [1, 2, 3, 4, 5].map((k) => { const x = list.find((r) => r['day' + k + '_date']); return x ? dshort(x['day' + k + '_date']) : 'waiting'; });
+      heads = [['#', 'num'], ['Stock'], ['Shortlisted at', 'num'], ['Bought (9:15 candle close)', 'num'],
+        ['Day 1 · ' + dd[0], 'num'], ['Day 2 · ' + dd[1], 'num'], ['Day 3 · ' + dd[2], 'num'], ['Day 4 · ' + dd[3], 'num'], ['Day 5 · ' + dd[4], 'num'],
+        ['P/L, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
+    } else {
+      heads = [['#', 'num'], ['Stock'], ['Shortlisted at', 'num'], ['Bought (9:15 candle close)', 'num'], ['Sold (3:15 PM)', 'num'],
+        ['Day close', 'num'], ['P/L, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
     }
-    box.replaceChildren(...out);
+    const t = el('table', 'ledger'), thead = el('thead'), hr = el('tr'), tb = el('tbody');
+    for (const [label, c] of heads) hr.appendChild(el('th', c || '', label));
+    thead.appendChild(hr);
+    for (const r of list) {
+      const tr = el('tr');
+      tr.append(el('td', 'num mut', String(r.rank)), el('td', 'sym', r.symbol));
+      tr.append(two(px(r.pick_price), (mode === 'i' ? 'prev close' : 'close') + (madeAt ? ' · ' + madeAt : ''), 'mut'));
+      tr.append(r.buy_price ? two(px(r.buy_price), dshort(r.buy_date) + ' · 9:20', 'mut') : two('–', r.profit_basis || 'waiting', 'mut'));
+      if (mode === 's') {
+        for (let k = 1; k <= 5; k++) {
+          const c = r['day' + k + '_close'];
+          tr.append(c === null || c === undefined || !r.buy_price ? two('–', 'waiting', 'mut')
+            : two(px(c), plc(r['day' + k + '_pl']) + ' · ' + pct(r['day' + k + '_pct']), cls(r['day' + k + '_pl'])));
+        }
+      } else {
+        tr.append(r.sell_price ? two(px(r.sell_price), pct(r.day_pct), cls(r.day_pct)) : two('–', r.buy_price ? 'waiting' : '', 'mut'));
+        tr.append(two(px(r.day1_close), 'official close', 'mut'));
+      }
+      const g = el('td', 'num ' + cls(r.profit_gross), plc(r.profit_gross));
+      const n = el('td', 'num strong ' + cls(r.profit_net), plc(r.profit_net));
+      if (r.profit_basis) n.title = r.profit_basis;
+      const j = el('td'); j.appendChild(chip(r.verdict));
+      tr.append(g, n, j);
+      tb.appendChild(tr);
+    }
+    if (sc.length) {
+      const tf = el('tr', 'total');
+      tf.append(el('td'), el('td', 'sym', 'Total'));
+      for (let k = 0; k < heads.length - 5; k++) tf.append(el('td'));
+      tf.append(el('td', 'num ' + cls(gtot), inr(gtot)), el('td', 'num strong ' + cls(tot), inr(tot)), el('td'));
+      tb.appendChild(tf);
+    }
+    t.append(thead, tb);
+    const wrap = el('div', 'scroll'); wrap.appendChild(t);
+    d.append(head, wrap);
+    return d;
+  }
+
+  // the latest 3 lists, then older reports on request
+  const older = {i: '', s: ''};
+  function dayList(type) {
+    const mode = type === 'Intraday' ? 'i' : 's', key = mode === 'i' ? 'for_day' : 'list_date';
+    const rows = ROWS.filter((r) => r.type === type);
+    const days = [...new Set(rows.map((r) => r[key]))].filter(Boolean).sort().reverse();
+    const box = $(mode + '-days-list'), obox = $(mode + '-older-list'), sel = $(mode + '-older');
+    const byDay = (d) => rows.filter((r) => r[key] === d).sort((a, b) => a.rank - b.rank);
+    if (!days.length) { box.replaceChildren(el('p', 'note', 'No list yet. The first one appears after the next run.')); $(mode + '-older-wrap').hidden = true; return; }
+    box.replaceChildren(...days.slice(0, 3).map((d) => listTable(byDay(d), mode, d)));
+    const rest = days.slice(3);
+    $(mode + '-older-wrap').hidden = !rest.length;
+    sel.replaceChildren(new Option('Choose a day (' + rest.length + ' older)', ''), new Option('Show all older reports', 'all'),
+      ...rest.map((d) => { const n = byDay(d); const s = n.filter((r) => N(r.profit_net) !== null).reduce((a, r) => a + N(r.profit_net), 0);
+        return new Option(dlong(d) + (n.some((r) => N(r.profit_net) !== null) ? '  ·  ' + inr(s) : ''), d); }));
+    sel.value = older[mode];
+    const show = older[mode] === 'all' ? rest : (rest.includes(older[mode]) ? [older[mode]] : []);
+    obox.replaceChildren(...show.map((d) => listTable(byDay(d), mode, d)));
+  }
+  for (const m of ['i', 's']) {
+    $(m + '-older').addEventListener('change', (e) => { older[m] = e.target.value; dayList(m === 'i' ? 'Intraday' : 'Swing'); });
   }
 
   // ---------- charts
@@ -445,14 +462,14 @@ table.ledger td{vertical-align:top}
     const lede = $('lede'); lede.replaceChildren();
     const b = (t) => el('b', '', t), tx = (t) => document.createTextNode(t);
     lede.append(tx('The 9 AM intraday lists have '), b((I.rupees >= 0 ? 'made ' : 'lost ') + inr(Math.abs(I.rupees)).replace('+', '')),
-      tx(' in total over ' + I.trades + ' breakout trades on ' + I.days + ' days, at 100 shares a trade after charges. The evening swing lists hold ' + S.picks + ' picks from ' + S.days + (S.days === 1 ? ' list; ' : ' lists; ')),
+      tx(' in total over ' + I.trades + ' trades on ' + I.days + ' days (bought at the 9:15 candle close, sold at 3:15 PM, 100 shares each, after charges). The evening swing lists hold ' + S.picks + ' picks from ' + S.days + (S.days === 1 ? ' list; ' : ' lists; ')),
       S.with_d5 ? b('after 5 days they averaged ' + pct(S.avg_d5)) : tx('none has been held 5 days yet'), tx('.'));
     // intraday
     $('i-when').textContent = I.last_day ? 'Intraday list for ' + dlong(I.last_day) : '—';
     $('i-made').textContent = I.last_made_at ? 'made ' + time12(I.last_made_at) + (I.last_made_on && I.last_made_on !== I.last_day ? ' on ' + dshort(I.last_made_on) : '') : 'rebuilt later';
     const li = dayRows('Intraday', 'for_day', I.last_day);
     const sc = li.filter((r) => N(r.profit_net) !== null);
-    $('i-latest-total').textContent = li.length && li[0].intraday_outcome === 'not scored yet' ? 'Results after 3:45 PM' : 'Day result: ' + inr(sc.reduce((a, r) => a + N(r.profit_net), 0)) + ' on ' + sc.length + ' trades, 100 shares each, after charges';
+    $('i-latest-total').textContent = li.length && !sc.length ? 'Results after 3:15 PM' : 'Day result: ' + inr(sc.reduce((a, r) => a + N(r.profit_net), 0)) + ' on ' + sc.length + ' stocks, 100 shares each, after charges';
     $('i-latest').replaceChildren(...li.map((r) => pickCard(r, 'i')));
     countUp($('i-total'), I.rupees, inr); countUp($('i-up'), I.up_pct, (v) => v.toFixed(1) + '%');
     $('i-up-n').textContent = I.with_day; countUp($('i-trades'), I.trades, (v) => String(Math.round(v)));
@@ -463,7 +480,7 @@ table.ledger td{vertical-align:top}
     $('s-when').textContent = S.last_list ? 'Swing list made ' + dlong(S.last_list) : 'No swing list yet';
     $('s-made').textContent = S.last_made_at ? 'at ' + time12(S.last_made_at) + (S.last_made_on && S.last_made_on !== S.last_list ? ' on ' + dshort(S.last_made_on) : '') + ', after the close' : '—';
     const ls = dayRows('Swing', 'list_date', S.last_list);
-    $('s-latest-note').textContent = 'Buy at the next open, hold up to 5 days · ' + (ls.length ? Math.max(...ls.map((r) => r.sessions_after || 0)) : 0) + ' of 5 days so far';
+    $('s-latest-note').textContent = 'Bought at the 9:15 candle close on the next session, hold up to 5 days · ' + (ls.length ? Math.max(...ls.map((r) => r.sessions_after || 0)) : 0) + ' of 5 days so far';
     $('s-latest').replaceChildren(...ls.map((r) => pickCard(r, 's')));
     countUp($('s-d5'), S.avg_d5, (v) => (v > 0 ? '+' : '') + v.toFixed(2) + '%'); $('s-d5-n').textContent = S.with_d5;
     countUp($('s-up'), S.up5_pct, (v) => v.toFixed(1) + '%'); countUp($('s-avg'), S.avg_latest, (v) => (v > 0 ? '+' : '') + v.toFixed(2) + '%');
