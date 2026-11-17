@@ -757,11 +757,12 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     p.then((doc) => {
       const views = [];
       const dly = doc.daily || [];
-      const di = dly.findIndex((b) => b[0] === day5);
-      if (doc.m5 && day5 && doc.m5[day5]) views.push({id: 'm5', label: '5-min · ' + dshort(day5), bars: doc.m5[day5], intra: true, day: day5, prev: di > 0 ? dly[di - 1][4] : null});
+      const days5 = Object.keys(doc.m5 || {}).filter((d) => (doc.m5[d] || []).length).sort().reverse().slice(0, 7);
+      for (const d of days5) { const di = dly.findIndex((b) => b[0] === d);
+        views.push({id: 'm5-' + d, label: '5-min · ' + dshort(d), bars: doc.m5[d], intra: true, day: d, prev: di > 0 ? dly[di - 1][4] : null}); }
       for (const [n, lab] of [[22, '1 month'], [66, '3 months'], [130, '6 months']]) if (dly.length) views.push({id: 'd' + n, label: 'Daily · ' + lab, bars: dly.slice(-n), intra: false});
       if (!views.length) { $('ch-body').replaceChildren(el('p', 'note', 'No candles saved for this stock yet.')); return; }
-      let cur = mode === 'i' && views[0].intra ? views[0] : (views.find((v) => v.id === 'd66') || views[0]);
+      let cur = views.find((v) => v.intra && v.day === day5) || views.find((v) => v.intra) || views.find((v) => v.id === 'd66') || views[0];
       const tabs = views.map((v) => { const b = el('button', '', v.label); b.type = 'button';
         b.addEventListener('click', () => { cur = v; paint(); }); return [v, b]; });
       $('ch-tabs').replaceChildren(...tabs.map((x) => x[1]));
@@ -801,7 +802,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     if (mode === 's' && N(r.plan_stop) !== null) lines.push({y: +r.plan_stop, tag: 'SL', label: 'Stop ' + px(r.plan_stop), col: 'var(--bad)'});
     if (mode === 's' && N(r.plan_target) !== null) lines.push({y: +r.plan_target, tag: 'T', label: 'Target ' + px(r.plan_target), col: 'var(--ok)'});
     const lo = d3.min(bars, (b) => b.l), hi = d3.max(bars, (b) => b.h);
-    const near = lines.filter((L) => L.y >= lo * 0.92 && L.y <= hi * 1.08);
+    const near = lines.filter((L) => view.intra ? L.y >= lo - (hi - lo) * 0.6 && L.y <= hi + (hi - lo) * 0.6 : L.y >= lo * 0.92 && L.y <= hi * 1.08);
     const y0 = Math.min(lo, ...near.map((L) => L.y)), y1 = Math.max(hi, ...near.map((L) => L.y)), pad = (y1 - y0) * 0.07 || y1 * 0.01;
     const y = d3.scaleLinear().domain([y0 - pad, y1 + pad]).nice().range([m.t + ph, m.t]);
     const x = d3.scaleBand().domain(bars.map((b) => b.k)).range([m.l, W - m.r]).padding(0.25);
@@ -818,7 +819,8 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     svg.append('g').attr('class', 'axis').attr('transform', 'translate(' + (W - m.r) + ',0)')
       .call(d3.axisRight(y).ticks(6).tickFormat((v) => v.toLocaleString('en-IN')).tickSizeOuter(0));
     // shaded: the buy day on a daily chart, the 9:15 buy and 3:10 sell candles on a 5-minute chart
-    const shade = view.intra ? ['09:15'].concat(mode === 'i' ? ['15:10'] : []) : [mark];
+    const buyDay = mode === 'i' ? r.for_day : (r.buy_date || r.trade_on), onBuyDay = view.intra && view.day === buyDay;
+    const shade = view.intra ? (onBuyDay ? ['09:15'].concat(mode === 'i' ? ['15:10'] : []) : []) : [mark];
     for (const k of shade) if (k && x(k) !== undefined) svg.append('rect').attr('x', x(k) - x.step() * x.padding() / 2).attr('width', x.step())
       .attr('y', m.t).attr('height', H - m.t - m.b).attr('fill', 'var(--accent)').attr('opacity', 0.12);
     const up = (b) => b.c >= b.o, col = (b) => up(b) ? 'var(--ok)' : 'var(--bad)';
@@ -881,7 +883,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     if (view.intra) { add('var(--muted)', 'dot', 'O: day open'); }
     add(chg >= 0 ? 'var(--ok)' : 'var(--bad)', 'dot', 'C: ' + (view.intra ? 'day close' : 'close'));
     for (const L of lines) add(L.col, 'dash', L.tag + ': ' + L.label + (near.includes(L) ? '' : ' (outside this view)'));
-    add('color-mix(in srgb,var(--accent) 35%,transparent)', 'box', view.intra ? (mode === 'i' ? 'Buy and sell candles' : 'Buy candle') : 'Buy day');
+    if (!view.intra || onBuyDay) add('color-mix(in srgb,var(--accent) 35%,transparent)', 'box', view.intra ? (mode === 'i' ? 'Buy and sell candles' : 'Buy candle') : 'Buy day');
     $('ch-legend').replaceChildren(...leg);
   }
   let rsz;
