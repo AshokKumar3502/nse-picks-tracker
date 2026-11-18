@@ -10,8 +10,12 @@ android {
         applicationId 'com.ashok.nsepicks'
         minSdk 26
         targetSdk 34
-        versionCode (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as int
-        versionName '1.' + (System.getenv('GITHUB_RUN_NUMBER') ?: '0')
+        versionCode Integer.parseInt(System.getenv('GITHUB_RUN_NUMBER') ?: '1')
+        versionName("1." + (System.getenv('GITHUB_RUN_NUMBER') ?: '0'))
+    }
+
+    if (!System.getenv('NSE_KEY_PASSWORD')) {
+        throw new GradleException('The signing secrets NSE_KEYSTORE_B64 and NSE_KEY_PASSWORD are not set in the GitHub repository')
     }
 
     signingConfigs {
