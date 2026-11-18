@@ -78,7 +78,14 @@ def main():
     if r.returncode:
         print(r.stdout + r.stderr)
         return 1
-    r = git("push", "origin", "HEAD")
+    for attempt in range(3):           # the cloud engine and this laptop may both publish: take theirs first
+        pull = git("pull", "--rebase", "-X", "theirs", "origin", "main")
+        if pull.returncode:
+            git("rebase", "--abort")
+            print("WARNING: pull before push failed: " + (pull.stderr or pull.stdout).strip()[:200])
+        r = git("push", "origin", "HEAD")
+        if not r.returncode:
+            break
     print(r.stdout + r.stderr)
     if r.returncode:
         return 1
