@@ -14,25 +14,24 @@ android {
         versionName("1." + (System.getenv('GITHUB_RUN_NUMBER') ?: '0'))
     }
 
-    if (!System.getenv('NSE_KEY_PASSWORD')) {
-        throw new GradleException('The signing secrets NSE_KEYSTORE_B64 and NSE_KEY_PASSWORD are not set in the GitHub repository')
-    }
-
-    signingConfigs {
-        release {
-            // the key lives in GitHub secrets (and on the owner's computer), never in the repository
-            storeFile file(System.getenv('NSE_KEYSTORE') ?: 'missing.p12')
-            storeType 'pkcs12'
-            storePassword System.getenv('NSE_KEY_PASSWORD')
-            keyAlias 'nsepicks'
-            keyPassword System.getenv('NSE_KEY_PASSWORD')
+    // a fixed key when the repository has the signing secrets; otherwise the build's own debug key
+    def hasKey = System.getenv('NSE_KEY_PASSWORD') != null && !System.getenv('NSE_KEY_PASSWORD').isEmpty()
+    if (hasKey) {
+        signingConfigs {
+            release {
+                storeFile file(System.getenv('NSE_KEYSTORE'))
+                storeType 'pkcs12'
+                storePassword System.getenv('NSE_KEY_PASSWORD')
+                keyAlias 'nsepicks'
+                keyPassword System.getenv('NSE_KEY_PASSWORD')
+            }
         }
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig signingConfigs.release
+            signingConfig hasKey ? signingConfigs.release : signingConfigs.debug
         }
     }
 

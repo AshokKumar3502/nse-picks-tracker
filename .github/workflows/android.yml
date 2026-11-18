@@ -25,10 +25,11 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Signing key from the repository secrets
+      - name: Signing key from the repository secrets (if set)
         env:
           NSE_KEYSTORE_B64: ${{ secrets.NSE_KEYSTORE_B64 }}
-        run: echo "$NSE_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/nse.p12"
+        run: |
+          if [ -n "$NSE_KEYSTORE_B64" ]; then echo "$NSE_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/nse.p12"; echo "Using the fixed signing key"; else echo "No signing secrets: using the build's own key (uninstall the old app before installing a new version)"; fi
 
       - name: Build the APK
         working-directory: android
