@@ -496,6 +496,18 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 .mood-warn{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);color:var(--warn);font-weight:500}
 .mood-note{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);color:var(--muted)}
 .chip.warn.gapchip{font-size:10.5px;padding:1px 7px;vertical-align:middle}
+
+/* today's game plan */
+.plan{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--r);padding:16px 20px;box-shadow:var(--shadow);display:grid;gap:10px}
+.plan-head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline}
+.plan-head b{font-size:17px;letter-spacing:-.01em}
+.plan-head span{color:var(--muted);font-size:13px}
+.plan-nifty{font-size:13.5px;line-height:1.5}
+.plan-nifty .mut{display:block;font-size:12px;margin-top:2px}
+.plan-list{margin:0;padding-left:20px;display:grid;gap:6px;font-size:13.5px;line-height:1.5}
+.plan-list li::marker{color:var(--muted);font-weight:600}
+.plan-list li.bad b{color:var(--bad)}.plan-list li.warn b{color:var(--warn)}.plan-list li.ok b{color:var(--ok)}
+.plan-foot{margin:0;font-size:11.5px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -535,6 +547,12 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     </div>
   </header>
 
+  <section class="plan" id="game-plan" aria-label="Today's game plan">
+    <div class="plan-head"><b>Today's game plan</b><span id="gp-when">&mdash;</span></div>
+    <div class="plan-nifty" id="gp-nifty">&mdash;</div>
+    <ol class="plan-list" id="gp-list"></ol>
+    <p class="plan-foot">Rules from our own tests on 2019-2026 NSE data and the last 18 recorded sessions, after charges. Paper trades only. Not financial advice.</p>
+  </section>
   <section class="ticker" id="indices" aria-label="Market indices"></section>
 
   <nav class="tabs" role="tablist" aria-label="Lists">
@@ -751,7 +769,36 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   const el = (tag, cl, text) => { const e = document.createElement(tag); if (cl) e.className = cl; if (text !== undefined) e.textContent = text; return e; };
   const mean = (a) => a.length ? Math.round(100 * a.reduce((x, y) => x + y, 0) / a.length) / 100 : null;
   const limit = {i: 10, s: 10};
-  let MD = null, EXP = null;
+  let MD = null, EXP = null, NL = null;
+  function gamePlan() {
+    const list = $('gp-list'), nf = $('gp-nifty');
+    const today = new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Kolkata'}).format(new Date());
+    $('gp-when').textContent = 'for ' + dlong(today);
+    if (NL && NL.day === today && NL.prev_close) {
+      const ch = (v) => (v >= NL.prev_close ? '+' : '') + ((v / NL.prev_close - 1) * 100).toFixed(2) + '%';
+      nf.replaceChildren(el('b', '', 'NIFTY today: '), document.createTextNode(
+        (NL.at_920 ? 'at 9:20 ' + (+NL.at_920).toLocaleString('en-IN') + ' (' + ch(NL.at_920) + '), ' : '') +
+        'at ' + time12(NL.now_time) + ' ' + (+NL.now).toLocaleString('en-IN') + ' (' + ch(NL.now) + ' on yesterday\'s close). '),
+        el('span', 'mut', 'Tested: NIFTY being up or down at 9:20 did not tell which way stocks went by 3:15 PM, so it is not used as a buy or sell signal.'));
+    } else {
+      nf.replaceChildren(el('span', 'mut', 'NIFTY\'s live numbers appear here after 9:20 on a trading day, each time the site is refreshed.'));
+    }
+    const todays = ROWS.filter((r) => r.type === 'Intraday' && r.for_day === today);
+    const waits = todays.filter((r) => r.verdict === 'WAIT' || r.verdict === 'SKIP').map((r) => r.symbol);
+    const chased = todays.filter((r) => r.chase).map((r) => r.symbol);
+    const items = [];
+    const add = (tone, head, text) => { const li = el('li', tone); li.append(el('b', '', head), document.createTextNode(' ' + text)); items.push(li); };
+    add('bad', 'Intraday buying loses on average.', 'The average F&O stock lost about 0.33% a day from open to close after charges (2019-2026), on up and down days alike. Keep trades few and small.');
+    if (MD && MD.stretched) add('warn', 'The market is stretched today:', 'NIFTY is ' + (+MD.stretch_pct).toFixed(1) + '% above its 20-day average (RSI ' + (+MD.rsi).toFixed(0) + '). Such days were a little worse for buyers, so take only the Judge\'s TAKE names, or none.');
+    else if (MD) add('ok', 'The market is not stretched today.', 'Normal care applies.');
+    if (waits.length) add('warn', 'Skip the Judge\'s WAIT names:', waits.join(', ') + '. On 18 Nov skipping them would have cut the loss from about -₹5,800 to -₹1,600.');
+    if (chased.length) add('warn', 'Do not chase:', chased.join(', ') + (chased.length === 1 ? ' was' : ' were') + ' already 2% or more up at 9:20. The biggest loss on 18 Nov was such a stock.');
+    if (EXP && EXP.warn) add('warn', 'Too much in one sector:', EXP.by_industry[0][1] + ' of ' + EXP.open + ' open trades are ' + EXP.by_industry[0][0] + '. One bad day for that sector hits all of them.');
+    add('', 'Decide your maximum loss before buying', '(for example ₹500 on a ₹50,000 trade, 1%) and stop trading for the day after two losing trades. This is a safety rule, not a tested edge.');
+    add('', 'Weak openings often recover.', 'In the last 18 sessions, stocks bought at 9:20 on days NIFTY opened lower gained about 0.6% by 3:15 PM, so do not panic-sell in the first minutes.');
+    add('', 'Swing and 20-day holds are judged at the end of the hold,', 'not on one red day. An 8% stop made the tested swing rules worse.');
+    list.replaceChildren(...items);
+  }
   function moodView() {
     const bar = $('mood-bar');
     if (!MD) { bar.hidden = true; return; }
@@ -1537,7 +1584,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       : HT.nifty_above_200d === false ? 'NIFTY 50 is under its 200-day average: the 20-day rule stands aside today.'
       : HT.eligible + ' NIFTY 500 stocks were eligible at the close of ' + dlong(HT.session) + '; the top ' + HT.shown + ' by score are traded here. Sell at the day 20 close, about ' + dlong(HT.exit_about) + '.';
     $('h-latest').replaceChildren(...lh.map((r) => pickCard(r, 'h')));
-    dayList('Intraday'); dayList('Swing'); dayList('Results'); dayList('Hold20'); resultsToday(); scoreboardView(); dontTouch(); fadeView(); shortView(); moodView();
+    dayList('Intraday'); dayList('Swing'); dayList('Results'); dayList('Hold20'); resultsToday(); scoreboardView(); dontTouch(); fadeView(); shortView(); moodView(); gamePlan();
     if (!$('intraday').hidden) curve();
     if (!$('swing').hidden) hold();
     first = false;
@@ -1549,7 +1596,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   fetch('data/picks.json?v=' + Date.now(), {cache: 'no-store'})
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((doc) => {
-      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null; DT = doc.dont_touch || null; FT = doc.fade_today || null; MD = doc.mood_today || null; EXP = doc.exposure || null; HT = doc.hold20_today || null;
+      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null; DT = doc.dont_touch || null; FT = doc.fade_today || null; MD = doc.mood_today || null; EXP = doc.exposure || null; NL = doc.nifty_live || null; HT = doc.hold20_today || null;
       const built = (doc.meta || []).find((m) => m.label === 'Built');
       $('built').textContent = built ? 'Data built ' + built.value + '.' : '';
       show(fromHash());
