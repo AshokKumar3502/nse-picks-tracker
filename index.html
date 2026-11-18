@@ -483,6 +483,14 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 /* gap-up fade */
 .fade-card{border-left:3px solid var(--bad)}
 .fd-about{margin-top:4px}
+
+/* bearish list + mood */
+.bear-card{border-left:3px solid var(--bad)}
+.mood-bar{padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-size:13.5px;line-height:1.5}
+.mood-bar b{margin-right:4px}
+.mood-bar.good{border-left:4px solid var(--ok)}.mood-bar.good b{color:var(--ok)}
+.mood-bar.bad{border-left:4px solid var(--bad)}.mood-bar.bad b{color:var(--bad)}
+.mood-bar.wait{border-left:4px solid var(--warn)}.mood-bar.wait b{color:var(--warn)}
 </style>
 </head>
 <body>
@@ -547,6 +555,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       <div class="latest-head"><span class="when" id="i-when">—</span><span class="stamp"><i></i><span id="i-made">—</span></span><span class="note" id="i-latest-total"></span></div>
       <div class="picks" id="i-latest"></div>
     </div>
+    <div class="mood-bar" id="mood-bar" hidden></div>
     <div class="card dt-card" id="dt-card">
       <div class="latest-head"><span class="when" id="dt-when">Don't touch</span><span class="stamp bad"><i></i><span id="dt-made">—</span></span></div>
       <p class="note" id="dt-note">—</p>
@@ -574,6 +583,11 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       <div class="days" id="i-days-list"></div>
       <div class="older" id="i-older-wrap"><label for="i-older">Older reports</label><select class="sel" id="i-older"></select></div>
       <div class="days" id="i-older-list"></div>
+    </div>
+    <div class="card bear-card" id="bear-card">
+      <div class="latest-head"><span class="when">Bearish list &middot; paper short</span><span class="stamp bad"><i></i><span id="sh-made">&mdash;</span></span><span class="note">the morning desk's bearish top 5 &middot; paper only</span></div>
+      <p class="note">Sold short at the close of the 9:15 AM candle (the 9:20 price), bought back at the 3:15 PM price, 100 shares, after Zerodha intraday charges. Profit when the price falls. Tested 2019 to 2026: shorting such stocks lost about 0.14% a trade after charges, even on bearish days, because weak stocks often bounce during the day. It is tracked here so the Scoreboard can show whether that still holds.</p>
+      <div class="days" id="sh-list"></div>
     </div>
     <div class="tiles">
       <div class="tile" id="tile-i-total"><span class="label">Running total</span><span class="big" id="i-total">—</span><span class="sub">100 shares a trade, after charges</span></div>
@@ -732,6 +746,54 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   const el = (tag, cl, text) => { const e = document.createElement(tag); if (cl) e.className = cl; if (text !== undefined) e.textContent = text; return e; };
   const mean = (a) => a.length ? Math.round(100 * a.reduce((x, y) => x + y, 0) / a.length) / 100 : null;
   const limit = {i: 10, s: 10};
+  let MD = null;
+  function moodView() {
+    const bar = $('mood-bar');
+    if (!MD) { bar.hidden = true; return; }
+    const tone = MD.label === 'Bullish' ? 'good' : MD.label === 'Bearish' ? 'bad' : 'wait';
+    const watch = MD.label === 'Bullish' ? 'the bullish list (above)' : MD.label === 'Bearish' ? 'the bearish list (paper short, below)' : 'both lists, with care';
+    bar.className = 'mood-bar ' + tone; bar.hidden = false;
+    bar.replaceChildren(el('b', '', 'Market mood: ' + MD.label), document.createTextNode(
+      ' · NIFTY ' + (+MD.nifty).toLocaleString('en-IN') + ' at the close of ' + dshort(MD.session) + ', 20-day average ' +
+      (+MD.ma20).toLocaleString('en-IN', {maximumFractionDigits: 0}) + ', 50-day ' + (+MD.ma50).toLocaleString('en-IN', {maximumFractionDigits: 0}) +
+      '. Your idea says watch ' + watch + '. The Scoreboard row "Follow the mood" measures whether that works.'));
+  }
+  function shortView() {
+    const box = $('sh-list');
+    const rows = ROWS.filter((r) => r.type === 'Short');
+    const days = [...new Set(rows.map((r) => r.for_day))].sort().reverse().slice(0, 3);
+    const first = rows.find((r) => r.for_day === days[0]);
+    $('sh-made').textContent = first && first.made_at ? 'made ' + time12(first.made_at) + ' on ' + dshort(first.for_day) : 'not made yet';
+    if (!days.length) { box.replaceChildren(el('p', 'note', 'The bearish list appears with the next morning desk.')); return; }
+    const two = (top, bot, cl) => { const td = el('td', 'num stack'); td.append(el('span', 'top', top), el('span', 'bot ' + (cl || ''), bot)); return td; };
+    box.replaceChildren(...days.map((d) => {
+      const list = rows.filter((r) => r.for_day === d).sort((a, b) => a.rank - b.rank);
+      const sc = list.filter((r) => N(r.profit_net) !== null), tot = sc.reduce((a, r) => a + N(r.profit_net), 0);
+      const nw = list.filter((r) => N(r.now_pl) !== null), ntot = nw.reduce((a, r) => a + N(r.now_pl), 0);
+      const wrap = el('div', 'day'), head = el('div', 'day-head');
+      head.append(el('b', '', 'Bearish · ' + dlong(d) + (list[0].mood ? ' · mood ' + list[0].mood : '')), el('span', '',
+        'sold short at the 9:15 candle close, bought back at 3:15 PM · ' + (sc.length ? 'total ' + inr(tot) + ' after charges' : 'no result yet') +
+        (nw.length ? ' · now ' + inr(ntot) + ' before charges (at ' + time12(nw[0].now_time) + ')' : '')));
+      const tb = el('tbody'), th = el('thead'), hr = el('tr'), tbl = el('table', 'ledger');
+      for (const [h, c] of [['#', 'num'], ['Stock'], ['Why bearish'], ['Sold short (9:15 candle close)', 'num'], ['Now', 'num'],
+        ['Bought back (3:15 PM)', 'num'], ['P/L, 100 shares', 'num'], ['After charges', 'num']]) hr.appendChild(el('th', c || '', h));
+      th.appendChild(hr);
+      for (const r of list) {
+        const tr = el('tr'), s = el('td', 'sym'); s.appendChild(symBtn(r, 'i', r.symbol));
+        tr.append(el('td', 'num mut', String(r.rank)), s, el('td', 'why', r.reason || ''),
+          r.buy_price ? two(px(r.buy_price), dshort(r.buy_date) + ' · 9:20', 'mut') : two('–', r.profit_basis || 'waiting', 'mut'),
+          N(r.now_price) === null ? two('–', '', 'mut') : two(px(r.now_price), inr(r.now_pl) + ' · ' + pct(r.now_pct), cls(r.now_pl)),
+          r.sell_price ? two(px(r.sell_price), pct(r.day_pct), cls(r.day_pct)) : two('–', r.buy_price ? 'waiting' : '', 'mut'),
+          el('td', 'num ' + cls(r.profit_gross), N(r.profit_gross) === null ? '–' : inr(r.profit_gross)),
+          el('td', 'num strong ' + cls(r.profit_net), N(r.profit_net) === null ? '–' : inr(r.profit_net)));
+        tb.appendChild(tr);
+      }
+      tbl.append(th, tb);
+      const sw = el('div', 'scroll'); sw.appendChild(tbl);
+      wrap.append(head, sw);
+      return wrap;
+    }));
+  }
   let FT = null;
   function fadeView() {
     const box = $('fd-list');
@@ -1456,7 +1518,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       : HT.nifty_above_200d === false ? 'NIFTY 50 is under its 200-day average: the 20-day rule stands aside today.'
       : HT.eligible + ' NIFTY 500 stocks were eligible at the close of ' + dlong(HT.session) + '; the top ' + HT.shown + ' by score are traded here. Sell at the day 20 close, about ' + dlong(HT.exit_about) + '.';
     $('h-latest').replaceChildren(...lh.map((r) => pickCard(r, 'h')));
-    dayList('Intraday'); dayList('Swing'); dayList('Results'); dayList('Hold20'); resultsToday(); scoreboardView(); dontTouch(); fadeView();
+    dayList('Intraday'); dayList('Swing'); dayList('Results'); dayList('Hold20'); resultsToday(); scoreboardView(); dontTouch(); fadeView(); shortView(); moodView();
     if (!$('intraday').hidden) curve();
     if (!$('swing').hidden) hold();
     first = false;
@@ -1468,7 +1530,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   fetch('data/picks.json?v=' + Date.now(), {cache: 'no-store'})
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((doc) => {
-      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null; DT = doc.dont_touch || null; FT = doc.fade_today || null; HT = doc.hold20_today || null;
+      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null; DT = doc.dont_touch || null; FT = doc.fade_today || null; MD = doc.mood_today || null; HT = doc.hold20_today || null;
       const built = (doc.meta || []).find((m) => m.label === 'Built');
       $('built').textContent = built ? 'Data built ' + built.value + '.' : '';
       show(fromHash());
