@@ -1,0 +1,39 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.ashok.nsepicks'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.ashok.nsepicks'
+        minSdk 26
+        targetSdk 34
+        versionCode (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as int
+        versionName '1.' + (System.getenv('GITHUB_RUN_NUMBER') ?: '0')
+    }
+
+    signingConfigs {
+        release {
+            // the key lives in GitHub secrets (and on the owner's computer), never in the repository
+            storeFile file(System.getenv('NSE_KEYSTORE') ?: 'missing.p12')
+            storeType 'pkcs12'
+            storePassword System.getenv('NSE_KEY_PASSWORD')
+            keyAlias 'nsepicks'
+            keyPassword System.getenv('NSE_KEY_PASSWORD')
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

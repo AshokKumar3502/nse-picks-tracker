@@ -1,0 +1,48 @@
+name: Android app
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'android/**'
+      - '.github/workflows/android.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Signing key from the repository secrets
+        env:
+          NSE_KEYSTORE_B64: ${{ secrets.NSE_KEYSTORE_B64 }}
+        run: echo "$NSE_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/nse.p12"
+
+      - name: Build the APK
+        working-directory: android
+        env:
+          NSE_KEYSTORE: ${{ runner.temp }}/nse.p12
+          NSE_KEY_PASSWORD: ${{ secrets.NSE_KEY_PASSWORD }}
+        run: gradle assembleRelease --no-daemon
+
+      - name: Put the APK on the android-app release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk nse-picks-tracker.apk
+          gh release view android-app >/dev/null 2>&1 || gh release create android-app \
+            --title "NSE Picks Tracker - Android app" \
+            --notes "The NSE Picks Tracker website as an Android app. Download nse-picks-tracker.apk below and open it on your phone (allow installing from this source when asked). Paper trades only. Not financial advice."
+          gh release upload android-app nse-picks-tracker.apk --clobber
