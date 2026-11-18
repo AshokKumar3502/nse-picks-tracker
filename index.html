@@ -479,6 +479,10 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 .clock .tz{font-size:10.5px;color:var(--muted)}
 .clock.pre i{background:var(--warn)}.clock.closed i{background:var(--muted);animation:none}
 @media (min-width:641px) and (max-width:900px){.clock .cd{display:none}}
+
+/* gap-up fade */
+.fade-card{border-left:3px solid var(--bad)}
+.fd-about{margin-top:4px}
 </style>
 </head>
 <body>
@@ -548,6 +552,21 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       <p class="note" id="dt-note">—</p>
       <div class="rchips" id="dt-chips"></div>
       <p class="note dt-rule" id="dt-rule"></p>
+    </div>
+    <div class="card fade-card" id="fade-card">
+      <div class="latest-head"><span class="when">Gap-up fade &middot; paper short</span><span class="stamp bad"><i></i><span id="fd-made">&mdash;</span></span><span class="note">the bearish list &middot; paper only, never real money</span></div>
+      <p class="note" id="fd-status">&mdash;</p>
+      <div class="days" id="fd-list"></div>
+      <details class="about fd-about">
+        <summary>How the gap-up fade works</summary>
+        <dl>
+          <dt>Stocks</dt><dd>The about 218 F&amp;O stocks, checked at 9:20 AM every weekday</dd>
+          <dt>Rule</dt><dd>A stock that opens 3% or more above the previous NSE close goes on the list. Not used when NIFTY is under its 200-day average (it lost money there).</dd>
+          <dt>Paper plan</dt><dd>Sell short at the close of the 9:15 AM candle (the 9:20 price), buy back at the 3:15 PM price, 100 shares, after Zerodha intraday charges. Profit when the price falls.</dd>
+          <dt>Tested</dt><dd>2019 to 2026, from the opening price: about +0.47% a trade after charges, 57% winners, 6 of 8 years positive; weaker lately (+0.15% in 2024 to 2026) and it lost -0.78% a trade in the 18 sessions before it went live. Shorting weak or bearish stocks lost money in every kind of market, so they are not on this list.</dd>
+          <dt>Why paper only</dt><dd>A short can lose more than expected if the price keeps rising. The scoreboard judges it after 20 trades.</dd>
+        </dl>
+      </details>
     </div>
     <div class="card">
       <h2>Intraday lists: latest 3 days</h2>
@@ -713,6 +732,44 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   const el = (tag, cl, text) => { const e = document.createElement(tag); if (cl) e.className = cl; if (text !== undefined) e.textContent = text; return e; };
   const mean = (a) => a.length ? Math.round(100 * a.reduce((x, y) => x + y, 0) / a.length) / 100 : null;
   const limit = {i: 10, s: 10};
+  let FT = null;
+  function fadeView() {
+    const box = $('fd-list');
+    if (!FT) { $('fd-status').textContent = 'The first check runs at 9:20 AM on the next weekday.'; $('fd-made').textContent = 'not run yet'; box.replaceChildren(); return; }
+    $('fd-made').textContent = 'checked ' + time12((FT.made_at || '').slice(11, 16)) + ' on ' + dshort(FT.for_day);
+    $('fd-status').textContent = FT.stand_aside ? 'NIFTY is under its 200-day average: the fade stands aside today.' :
+      (FT.count ? FT.count + ' of ' + FT.scanned + ' F&O stocks opened ' + FT.gap + '% or more higher on ' + dlong(FT.for_day) + '.' :
+        'No F&O stock opened ' + FT.gap + '% or more higher on ' + dlong(FT.for_day) + ' (' + FT.scanned + ' checked), so there is no paper short today.');
+    const rows = ROWS.filter((r) => r.type === 'Fade');
+    const days = [...new Set(rows.map((r) => r.for_day))].sort().reverse().slice(0, 5);
+    const two = (top, bot, cl) => { const td = el('td', 'num stack'); td.append(el('span', 'top', top), el('span', 'bot ' + (cl || ''), bot)); return td; };
+    box.replaceChildren(...days.map((d) => {
+      const list = rows.filter((r) => r.for_day === d).sort((a, b) => a.rank - b.rank);
+      const sc = list.filter((r) => N(r.profit_net) !== null), tot = sc.reduce((a, r) => a + N(r.profit_net), 0);
+      const nw = list.filter((r) => N(r.now_pl) !== null), ntot = nw.reduce((a, r) => a + N(r.now_pl), 0);
+      const wrap = el('div', 'day'), head = el('div', 'day-head');
+      head.append(el('b', '', 'Gap-up fade · ' + dlong(d)), el('span', '', 'sold short at the 9:15 candle close, bought back at 3:15 PM · ' +
+        (sc.length ? 'total ' + inr(tot) + ' after charges' : 'no result yet') + (nw.length ? ' · now ' + inr(ntot) + ' before charges (at ' + time12(nw[0].now_time) + ')' : '')));
+      const t = el('table', 'ledger'), hr = el('tr'), tb = el('tbody'), th = el('thead');
+      for (const [h, c] of [['#', 'num'], ['Stock'], ['Gap at open', 'num'], ['Sold short (9:15 candle close)', 'num'], ['Now', 'num'],
+        ['Bought back (3:15 PM)', 'num'], ['P/L, 100 shares', 'num'], ['After charges', 'num']]) hr.appendChild(el('th', c || '', h));
+      th.appendChild(hr);
+      for (const r of list) {
+        const tr = el('tr'), s = el('td', 'sym'); s.appendChild(symBtn(r, 'i', r.symbol));
+        tr.append(el('td', 'num mut', String(r.rank)), s, two(pct(r.gap_pct), 'prev close ' + px(r.pick_price), 'mut'),
+          r.buy_price ? two(px(r.buy_price), dshort(r.buy_date) + ' · 9:20', 'mut') : two('–', 'waiting', 'mut'),
+          N(r.now_price) === null ? two('–', '', 'mut') : two(px(r.now_price), inr(r.now_pl) + ' · ' + pct(r.now_pct), cls(r.now_pl)),
+          r.sell_price ? two(px(r.sell_price), pct(r.day_pct), cls(r.day_pct)) : two('–', r.buy_price ? 'waiting' : '', 'mut'),
+          el('td', 'num ' + cls(r.profit_gross), N(r.profit_gross) === null ? '–' : inr(r.profit_gross)),
+          el('td', 'num strong ' + cls(r.profit_net), N(r.profit_net) === null ? '–' : inr(r.profit_net)));
+        tb.appendChild(tr);
+      }
+      t.append(th, tb);
+      const sw = el('div', 'scroll'); sw.appendChild(t);
+      wrap.append(head, sw);
+      return wrap;
+    }));
+  }
   let ROWS = [], RT = null, SB = null, DT = null, HT = null, first = true;
   const modeOf = (type) => ({Intraday: 'i', Results: 'r', Hold20: 'h'})[type] || 's';
   const typeOf = {i: 'Intraday', s: 'Swing', r: 'Results', h: 'Hold20'};
@@ -1399,7 +1456,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       : HT.nifty_above_200d === false ? 'NIFTY 50 is under its 200-day average: the 20-day rule stands aside today.'
       : HT.eligible + ' NIFTY 500 stocks were eligible at the close of ' + dlong(HT.session) + '; the top ' + HT.shown + ' by score are traded here. Sell at the day 20 close, about ' + dlong(HT.exit_about) + '.';
     $('h-latest').replaceChildren(...lh.map((r) => pickCard(r, 'h')));
-    dayList('Intraday'); dayList('Swing'); dayList('Results'); dayList('Hold20'); resultsToday(); scoreboardView(); dontTouch();
+    dayList('Intraday'); dayList('Swing'); dayList('Results'); dayList('Hold20'); resultsToday(); scoreboardView(); dontTouch(); fadeView();
     if (!$('intraday').hidden) curve();
     if (!$('swing').hidden) hold();
     first = false;
@@ -1411,7 +1468,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   fetch('data/picks.json?v=' + Date.now(), {cache: 'no-store'})
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((doc) => {
-      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null; DT = doc.dont_touch || null; HT = doc.hold20_today || null;
+      ROWS = doc.rows || []; RT = doc.results_today || null; SB = doc.scoreboard || null; DT = doc.dont_touch || null; FT = doc.fade_today || null; HT = doc.hold20_today || null;
       const built = (doc.meta || []).find((m) => m.label === 'Built');
       $('built').textContent = built ? 'Data built ' + built.value + '.' : '';
       show(fromHash());
