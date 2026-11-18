@@ -1175,10 +1175,12 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     const sc = list.filter((r) => N(r.profit_net) !== null);
     const tot = sc.reduce((a, r) => a + N(r.profit_net), 0), gtot = sc.reduce((a, r) => a + N(r.profit_gross), 0);
     const buyDay = (list.find((r) => r.buy_date) || {}).buy_date;
+    const nowRows = list.filter((r) => N(r.now_price) !== null), nowTot = nowRows.reduce((a, r) => a + N(r.now_pl), 0);
     head.append(el('b', '', mode === 'i' ? 'Intraday · ' + dlong(day) : mode === 'r' ? 'Results jump · ' + dlong(day) : mode === 'h' ? '20-day hold · shortlisted ' + dlong(day) : 'Swing · shortlisted ' + dlong(day)),
       el('span', '', (madeAt ? 'shortlisted at ' + madeAt : 'rebuilt later, no time') + ' · ' +
         (mode !== 'i' ? 'bought ' + (buyDay ? dshort(buyDay) : 'next session') + ' at the 9:15 candle close' + (mode === 'r' ? ', held up to 40 days · ' : mode === 'h' ? ', held 20 days · ' : ' · ') : 'bought at the 9:15 candle close, sold at 3:15 PM · ') +
-        (sc.length ? 'total ' + inr(tot) + ' after charges' : 'no result yet')));
+        (sc.length ? 'total ' + inr(tot) + ' after charges' : 'no result yet') +
+        (nowRows.length ? ' · now ' + inr(nowTot) + ' before charges (at ' + time12(nowRows[0].now_time) + ')' : '')));
     let heads;
     const dayCols = mode === 'r' ? [1, 10, 20, 30, 40] : mode === 'h' ? [1, 5, 10, 15, 20] : [1, 2, 3, 4, 5, 10];
     if (mode !== 'i') {
@@ -1189,6 +1191,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       heads = [['#', 'num'], ['Stock'], ['Shortlisted at', 'num'], ['Bought (9:15 candle close)', 'num'], ['Sold (3:15 PM)', 'num'],
         ['Day close', 'num'], ['P/L, 100 shares', 'num'], ['After charges', 'num'], ['Judge']];
     }
+    if (nowRows.length) heads.splice(4, 0, ['Now · ' + time12(nowRows[0].now_time), 'num']);
     const t = el('table', 'ledger'), thead = el('thead'), hr = el('tr'), tb = el('tbody');
     for (const [label, c] of heads) hr.appendChild(el('th', c || '', label));
     thead.appendChild(hr);
@@ -1200,6 +1203,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       tr.append(mode === 'r' ? two(px(r.pick_price), 'up ' + pct(r.score) + ' on results', 'pos')
         : two(px(r.pick_price), (mode === 'i' ? 'prev close' : 'close') + (madeAt ? ' · ' + madeAt : ''), 'mut'));
       tr.append(r.buy_price ? two(px(r.buy_price), dshort(r.buy_date) + ' · 9:20', 'mut') : two('–', r.profit_basis || 'waiting', 'mut'));
+      if (nowRows.length) tr.append(N(r.now_price) === null ? two('–', '', 'mut') : two(px(r.now_price), inr(r.now_pl) + ' · ' + pct(r.now_pct), cls(r.now_pl)));
       if (mode !== 'i') {
         for (const k of dayCols) {
           const c = r['day' + k + '_close'];
