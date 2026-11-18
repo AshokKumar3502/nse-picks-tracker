@@ -147,6 +147,16 @@ footer a{font-weight:600}
 @keyframes sk{to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){.skel{animation:none}.card{transition:none}}
 @media (max-width:420px){.chip{min-width:118px}.seg-head h1{font-size:18px}.total b{font-size:18px}}
+/* event calendar and news */
+.today .cal li.bigev b{color:var(--warn)}
+.card .why.nw{color:var(--fg);opacity:.8}
+.news{margin-top:14px;display:grid;gap:8px}
+.news h3{margin:0;font-size:14px}
+.news p{margin:0;font-size:13px;line-height:1.45}
+.news a{color:var(--fg);text-decoration:underline;text-underline-offset:2px}
+.news small,.news .mutedline{color:var(--muted);font-size:11.5px}
+.news .nwk{display:inline-block;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 6px;margin-right:6px}
+.news .nwk.f{color:var(--warn);border-color:currentColor}
 </style>
 </head>
 <body>
@@ -172,6 +182,7 @@ footer a{font-weight:600}
   <div class="views" id="sh-views"></div>
   <div class="chartbox" id="sh-chart"></div>
   <div class="legend" id="sh-legend"></div>
+  <div class="news" id="sh-news"></div>
 </div></div>
 
 <script>
@@ -254,6 +265,8 @@ footer a{font-weight:600}
       const bar = el('div', 'bar'), fill = el('i'); fill.style.width = (done / hold * 100) + '%'; bar.appendChild(fill);
       b.append(bar, el('div', 'why', 'Day ' + done + ' of ' + hold + (r.reason ? ' · ' + r.reason : '')));
     } else if (r.reason) b.appendChild(el('div', 'why', r.reason));
+    const nw = (D.news || {})[r.symbol];
+    if (nw && nw.length && !seg.sameDay) b.appendChild(el('div', 'why nw', (nw[0].filing ? 'NSE filing: ' : 'News: ') + nw[0].title));
     b.setAttribute('aria-label', r.symbol + ', ' + (p ? inr(p.v) : 'no result yet'));
     b.addEventListener('click', () => openChart(r, seg));
     return b;
@@ -296,8 +309,21 @@ footer a{font-weight:600}
     const DT = D.dont_touch;
     if (DT && DT.items && DT.items.length) add('<b>Don\'t touch ' + dLong(DT.for_day) + ':</b> ' + esc(DT.items.map((x) => x.symbol).join(', ')) + '.');
     if (D.exposure && D.exposure.warn) add('<b>One sector:</b> ' + D.exposure.by_industry[0][1] + ' of ' + D.exposure.open + ' open trades are ' + esc(D.exposure.by_industry[0][0]) + '.');
+    const EV = D.events || [];
+    const big = EV.filter((e) => e.date === T && e.big);
+    if (big.length) add('<b>Big-news day:</b> ' + esc(big.map((e) => e.name).join('; ')) + '. Moves can be sharp: trade smaller or skip.');
     if (!ul.children.length) add('No special warnings today.');
     box.appendChild(ul);
+    const soon = EV.filter((e) => e.date >= T);
+    if (soon.length) {
+      const cal = el('details', 'more cal'); cal.open = soon.some((e) => e.big);
+      cal.appendChild(el('summary', '', 'Coming up · next 7 days'));
+      const ul3 = el('ul');
+      for (const e of soon) {
+        const li = el('li', e.big ? 'bigev' : ''); li.append(el('b', '', dLong(e.date) + ': '), document.createTextNode(e.name)); ul3.appendChild(li);
+      }
+      cal.appendChild(ul3); box.appendChild(cal);
+    }
     const more = el('details', 'more'); more.appendChild(el('summary', '', 'Always-on care rules'));
     const ul2 = el('ul');
     for (const t of ['Intraday buying loses about 0.33% a trade on average after charges (2019-2026): keep trades few and small.',
@@ -386,6 +412,17 @@ footer a{font-weight:600}
   function openChart(r, seg) {
     chartRow = r; $('sh-sym').textContent = r.symbol; $('sh-sub').textContent = seg.name + ' · ' + dLong(seg.sameDay ? r.for_day : r.list_date);
     $('sh-views').replaceChildren(); $('sh-legend').replaceChildren(); $('sh-chart').replaceChildren(el('div', 'skel'));
+    const nb = $('sh-news'); nb.replaceChildren();
+    const nw = (D.news || {})[r.symbol] || [];
+    if (nw.length) {
+      nb.appendChild(el('h3', '', 'Latest news and NSE filings'));
+      for (const x of nw) {
+        const a = el('a', '', x.title); a.href = x.link; a.target = '_blank'; a.rel = 'noopener';
+        const p = el('p'); p.append(el('span', 'nwk ' + (x.filing ? 'f' : ''), x.filing ? 'NSE filing' : (x.by || 'News')), a, el('small', '', ' · ' + (x.at || '')));
+        nb.appendChild(p);
+      }
+      nb.appendChild(el('p', 'mutedline', 'Headlines are matched by name and can mention related companies. Read before acting.'));
+    }
     $('sheet').hidden = false; document.body.style.overflow = 'hidden'; $('sh-x').focus();
     fetch('data/charts/' + encodeURIComponent(r.symbol.replace(/&/g, '_')) + '.json?v=' + Date.now(), {cache: 'no-store'})
       .then((x) => { if (!x.ok) throw new Error('no chart'); return x.json(); })
