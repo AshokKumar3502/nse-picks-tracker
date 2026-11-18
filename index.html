@@ -443,7 +443,8 @@ footer a{font-weight:600}
       D = doc; IDX = ix.rows || [];
       const h = (location.hash || '').slice(1); if (SEGS.some((s) => s.id === h)) cur = h;
       const built = (doc.meta || []).find((m) => m.label === 'Built');
-      $('built').textContent = built ? 'Data updated ' + built.value + '.' : '';
+      const by = (doc.meta || []).find((m) => m.label === 'Run by');
+      $('built').textContent = built ? 'Data updated ' + built.value + (by ? ' by the ' + by.value : '') + '.' : '';
       render();
     }).catch((e) => {
       $('seg').replaceChildren(el('div', 'empty', 'The data could not be loaded (' + e.message + '). Check the internet connection.'));
