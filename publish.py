@@ -67,7 +67,13 @@ def main():
             print("WARNING: the heatmap file %s is missing; the site keeps the old heatmap" % src)
       except (OSError, ValueError) as e:
         print("WARNING: heatmap not copied (%s); the site keeps the old heatmap" % e)
-    r = git("add", "data/picks.json", "data/indices.json", "data/charts", "heatmap.html")
+    note = os.path.join(os.path.dirname(a.source), "notify.json")
+    if os.path.exists(note):            # phone notifications for the Android app
+        shutil.copyfile(note, os.path.join(HERE, "data", "notify.json"))
+    paths = ["data/picks.json", "data/indices.json", "data/charts", "heatmap.html"]
+    if os.path.exists(os.path.join(HERE, "data", "notify.json")):
+        paths.append("data/notify.json")
+    r = git("add", *paths)
     if r.returncode:
         print("NOT PUBLISHED: git add failed: " + (r.stderr or r.stdout))
         return 1

@@ -1,6 +1,16 @@
 package com.ashok.nsepicks;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import androidx.work.Constraints;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import java.util.concurrent.TimeUnit;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,7 +22,7 @@ import android.webkit.WebViewClient;
 
 /** The NSE Picks Tracker website in an app window. Links to other sites open in the phone's browser. */
 public class MainActivity extends Activity {
-    private static final String HOME = "https://ashokkumar3502.github.io/nse-picks-tracker/";
+    static final String HOME = "https://ashokkumar3502.github.io/nse-picks-tracker/";
     private static final long RELOAD_AFTER_MS = 5 * 60 * 1000;   // fresh data when coming back after 5 minutes
     private WebView web;
     private long pausedAt = 0;
@@ -22,6 +32,7 @@ public class MainActivity extends Activity {
         super.onCreate(state);
         web = new WebView(this);
         setContentView(web);
+        startNotifications();
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
@@ -51,6 +62,19 @@ public class MainActivity extends Activity {
         } else {
             web.loadUrl(HOME);
         }
+    }
+
+    /** Ask once for notification permission (Android 13+) and check for new messages about every 15 minutes. */
+    private void startNotifications() {
+        if (Build.VERSION.SDK_INT >= 33
+                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[] {Manifest.permission.POST_NOTIFICATIONS}, 1);
+        }
+        Constraints online = new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build();
+        WorkManager wm = WorkManager.getInstance(getApplicationContext());
+        wm.enqueueUniquePeriodicWork("notify", ExistingPeriodicWorkPolicy.KEEP,
+                new PeriodicWorkRequest.Builder(NotifyWorker.class, 15, TimeUnit.MINUTES).setConstraints(online).build());
+        wm.enqueue(new OneTimeWorkRequest.Builder(NotifyWorker.class).setConstraints(online).build());
     }
 
     @Override
