@@ -5,6 +5,12 @@
    "ts": 1795024800,
    "title": "NSE Picks",
    "text": "Market opens tomorrow (Thu 19 Nov) at 9:15 AM. Your morning stock list arrives about 8:30 AM."
+  },
+  {
+   "id": "test:2337@2026-11-18",
+   "ts": 1795025276,
+   "title": "NSE Picks: test message: your phone alerts are working. (11:37 PM)",
+   "text": "NSE Picks - test message: your phone alerts are working. (11:37 PM)"
   }
  ]
 }
