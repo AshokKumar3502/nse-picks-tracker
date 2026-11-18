@@ -506,7 +506,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
   </div>
   <header class="hero">
     <div class="glow" aria-hidden="true"></div>
-    <p class="eyebrow"><span class="pill">NSE</span> bullish lists only · tracking since 17 Nov 2026 · prices to <span id="prices-to">—</span></p>
+    <p class="eyebrow"><span class="pill">NSE</span> bullish lists only · tracking 17 Nov 2026 to <span id="track-today">today</span> · latest closing prices <span id="prices-to">—</span></p>
     <h1>Every pick, <span class="grad">every rupee</span>, in the open.</h1>
     <p class="lede" id="lede">Loading the lists…</p>
     <div class="cta">
@@ -974,6 +974,11 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       const now = new Date();
       $('clk-date').textContent = fDate.format(now).replace(/,/g, '');
       $('clk-time').textContent = fTime.format(now);
+      // "tracking 17 Nov 2026 to today, Wed 18 Nov 2026 (trading day 2)": weekdays since the start, today included
+      const ymd = new Intl.DateTimeFormat('en-CA', ist).format(now), tdy = new Date(ymd + 'T00:00:00Z');
+      let n = 0;
+      for (let d = new Date('2026-11-17T00:00:00Z'); d <= tdy; d.setUTCDate(d.getUTCDate() + 1)) if (d.getUTCDay() % 6) n++;
+      $('track-today').textContent = 'today, ' + fDate.format(now).replace(/,/g, '') + ' (trading day ' + n + ')';
       const p = Object.fromEntries(fParts.formatToParts(now).map((x) => [x.type, x.value]));
       const mins = (+p.hour % 24) * 60 + (+p.minute), wk = !['Sat', 'Sun'].includes(p.weekday);
       const state = !wk ? ['closed', 'Weekend'] : mins >= 540 && mins < 555 ? ['pre', 'Pre-open'] :
