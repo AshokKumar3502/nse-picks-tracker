@@ -816,7 +816,8 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     $('fd-made').textContent = 'checked ' + time12((FT.made_at || '').slice(11, 16)) + ' on ' + dshort(FT.for_day);
     $('fd-status').textContent = FT.stand_aside ? 'NIFTY is under its 200-day average: the fade stands aside today.' :
       (FT.count ? FT.count + ' of ' + FT.scanned + ' F&O stocks opened ' + FT.gap + '% or more higher on ' + dlong(FT.for_day) + '.' :
-        'No F&O stock opened ' + FT.gap + '% or more higher on ' + dlong(FT.for_day) + ' (' + FT.scanned + ' checked), so there is no paper short today.');
+        'No F&O stock opened ' + FT.gap + '% or more higher on ' + dlong(FT.for_day) + ' (' + FT.scanned + ' checked), so there is no paper short today.') +
+      ((FT.problems || []).length ? ' ⚠ ' + FT.problems.join('; ') + '.' : '');
     const rows = ROWS.filter((r) => r.type === 'Fade');
     const days = [...new Set(rows.map((r) => r.for_day))].sort().reverse().slice(0, 5);
     const two = (top, bot, cl) => { const td = el('td', 'num stack'); td.append(el('span', 'top', top), el('span', 'bot ' + (cl || ''), bot)); return td; };
@@ -858,6 +859,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     $('dt-note').textContent = DT.items.length ? 'F&O stocks the tests say to leave alone for the day, whatever the desk says:' :
       'No F&O stock is on the list from tonight\'s signals.';
     chips.append(...DT.items.map((x) => { const c = el('span', 'rchip bad'); c.append(el('b', '', x.symbol), document.createTextNode(' ' + x.why.join('; '))); return c; }));
+    if (DT.calendar_note) $('dt-note').textContent += ' ⚠ ' + DT.calendar_note + '.';
     $('dt-rule').replaceChildren(el('b', '', 'At 9:15: '), document.createTextNode(DT.gap_rule + ' '), el('span', 'mut', 'Tested: ' + DT.tested));
   }
   function scoreboardView() {
@@ -921,7 +923,8 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     $('r-made').textContent = 'checked ' + (mt ? time12(mt) : '') + (md && md !== RT.session ? ' on ' + dshort(md) : '') + ', close of ' + dshort(RT.session);
     st.textContent = (RT.stand_aside ? 'NIFTY 50 is under its 200-day average: the rule stands aside, jumps are shown as watch only. '
       : 'NIFTY 50 is above its 200-day average: the rule may trade. ') +
-      (RT.jumps ? RT.jumps + (RT.jumps === 1 ? ' results jump' : ' results jumps') + ' at the close of ' + dlong(RT.session) + '.' : 'No results jump at the close of ' + dlong(RT.session) + '.');
+      (RT.jumps ? RT.jumps + (RT.jumps === 1 ? ' results jump' : ' results jumps') + ' at the close of ' + dlong(RT.session) + '.' : 'No results jump at the close of ' + dlong(RT.session) + '.') +
+      (RT.failed ? ' ⚠ NSE did not answer for ' + RT.failed + (RT.failed === 1 ? ' stock' : ' stocks') + ', so a results jump or fall may be missing.' : '');
     const chip = (x, kind) => { const c = el('span', 'rchip ' + kind); c.append(el('b', '', x.symbol), document.createTextNode(' ' + pct(x.reaction_pct) + ' on results')); c.title = (x.industry || '') + (x.filed_at ? ' · filed ' + x.filed_at : ''); return c; };
     if ((RT.falls || []).length) { chips.append(el('span', 'rlab', "Don't buy (results fall):"), ...RT.falls.map((x) => chip(x, 'bad'))); }
     if ((RT.watch_only || []).length) { chips.append(el('span', 'rlab', 'Watch only:'), ...RT.watch_only.map((x) => chip(x, 'mut'))); }
