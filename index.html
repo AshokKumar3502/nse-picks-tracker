@@ -323,7 +323,11 @@ dialog.chart[open]::backdrop{animation:fade .3s ease-out}
   tbody tr{animation:fade .5s ease-out both}
 }
 @media (max-width:640px){
-  .topbar .live{display:none}
+  .topbar .live .mk,.topbar .live .tz{display:none}
+  .topbar .live{margin-left:0;display:grid;grid-template-columns:auto auto;align-items:center;gap:0 7px;padding:4px 9px;line-height:1.15}
+  .topbar .live i{grid-row:1/3}
+  .topbar .live .cd{display:block!important;font-size:10.5px}
+  .topbar .live .ct{font-size:12.5px;min-width:0}
   .theme{margin-left:auto}
   .hero{border-radius:18px}
   .cta .btn{flex:1 1 100%;justify-content:center}
@@ -466,6 +470,15 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
 .dt-rule .mut{display:block;margin-top:4px;font-size:12px}
 .gapchip{font-size:10.5px;padding:1px 7px;vertical-align:middle}
 .holdtag{display:inline-block;margin-left:6px;font:500 10.5px var(--mono);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 5px;vertical-align:middle}
+
+/* live clock */
+.clock{gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel);box-shadow:var(--shadow);font-variant-numeric:tabular-nums;white-space:nowrap}
+.clock .mk{font-weight:600;color:var(--fg)}
+.clock .cd{color:var(--muted)}
+.clock .ct{font:600 14px var(--mono);color:var(--fg);letter-spacing:.02em;min-width:8ch}
+.clock .tz{font-size:10.5px;color:var(--muted)}
+.clock.pre i{background:var(--warn)}.clock.closed i{background:var(--muted);animation:none}
+@media (min-width:641px) and (max-width:900px){.clock .cd{display:none}}
 </style>
 </head>
 <body>
@@ -484,7 +497,7 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
       <kbd aria-hidden="true">/</kbd>
       <div class="q-results" id="q-results" role="listbox" aria-label="Search results" hidden></div>
     </div>
-    <span class="live"><i></i>Updated every weekday</span>
+    <span class="live clock" id="clock" title="India time (IST)"><i id="mk-dot"></i><span class="mk" id="mk-state">&mdash;</span><span class="cd" id="clk-date">&mdash;</span><b class="ct" id="clk-time">&mdash;</b><span class="tz">IST</span></span>
     <a class="heatlink" href="https://www.nseindia.com/market-data/live-market-indices/heatmap" target="_blank" rel="noopener" title="NSE live heatmap (opens nseindia.com)" aria-label="NSE live heatmap, opens nseindia.com in a new tab"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="1.5"/><rect x="13" y="3" width="8" height="6" rx="1.5"/><rect x="13" y="11" width="8" height="10" rx="1.5"/><rect x="3" y="15" width="8" height="6" rx="1.5"/></svg></a>
     <button class="theme" id="theme" type="button" aria-label="Switch light or dark">
       <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>
@@ -949,6 +962,28 @@ table{font-family:var(--body);font-size:13.5px;font-variant-numeric:tabular-nums
     document.addEventListener('keydown', (e) => {
       if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && !$('chart').open) { e.preventDefault(); q.focus(); }
     });
+  })();
+
+  // ---------- live India clock in the top bar: day, date, time to the second, market state
+  (function () {
+    const ist = {timeZone: 'Asia/Kolkata'};
+    const fDate = new Intl.DateTimeFormat('en-IN', Object.assign({weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'}, ist));
+    const fTime = new Intl.DateTimeFormat('en-GB', Object.assign({hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false}, ist));
+    const fParts = new Intl.DateTimeFormat('en-GB', Object.assign({weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false}, ist));
+    function tick() {
+      const now = new Date();
+      $('clk-date').textContent = fDate.format(now).replace(/,/g, '');
+      $('clk-time').textContent = fTime.format(now);
+      const p = Object.fromEntries(fParts.formatToParts(now).map((x) => [x.type, x.value]));
+      const mins = (+p.hour % 24) * 60 + (+p.minute), wk = !['Sat', 'Sun'].includes(p.weekday);
+      const state = !wk ? ['closed', 'Weekend'] : mins >= 540 && mins < 555 ? ['pre', 'Pre-open'] :
+        mins >= 555 && mins < 930 ? ['open', 'Market open'] : ['closed', 'Market closed'];
+      $('clock').className = 'live clock ' + state[0];
+      $('mk-state').textContent = state[1];
+      $('clock').title = 'India time (IST). NSE: pre-open 9:00, trading 9:15 to 3:30 PM on weekdays (holidays not shown).';
+    }
+    tick();
+    setTimeout(() => { tick(); setInterval(tick, 1000); }, 1000 - (Date.now() % 1000));
   })();
 
   // ---------- candle chart: click a stock name
