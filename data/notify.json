@@ -1,12 +1,6 @@
 {
  "messages": [
   {
-   "id": "move:Hold20:ANGELONE:down@2026-11-19",
-   "ts": 1795060579,
-   "title": "NSE Picks: ANGELONE (Hold20 list): the paper trade is down 6.7% at 09:25.",
-   "text": "NSE Picks - ANGELONE (Hold20 list): the paper trade is down 6.7% at 09:25."
-  },
-  {
    "id": "move:Hold20:KALYANKJIL:down@2026-11-19",
    "ts": 1795060579,
    "title": "NSE Picks: KALYANKJIL (Hold20 list): the paper trade is down 6.4% at 09:25.",
@@ -179,6 +173,12 @@
    "ts": 1795407079,
    "title": "NSE Picks: CRAFTSMAN (Hold20 list): the paper trade is down 3.6% at 09:40.",
    "text": "NSE Picks - CRAFTSMAN (Hold20 list): the paper trade is down 3.6% at 09:40."
+  },
+  {
+   "id": "move:Swing:HYUNDAI:down@2026-11-23",
+   "ts": 1795425066,
+   "title": "NSE Picks: HYUNDAI (Swing list): the paper trade is down 3.3% at 14:40.",
+   "text": "NSE Picks - HYUNDAI (Swing list): the paper trade is down 3.3% at 14:40."
   }
  ]
 }
