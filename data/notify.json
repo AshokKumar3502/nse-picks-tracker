@@ -1,24 +1,6 @@
 {
  "messages": [
   {
-   "id": "morning@2026-11-19",
-   "ts": 1795056980,
-   "title": "NSE Picks: today's intraday lists (2026-11-19)",
-   "text": "Buy list: MCX, INDIGO, CDSL, DIVISLAB, ATHERENERG\nSell list: POLYCAB, HINDALCO, CUMMINSIND, HINDZINC, RVNL\nPaper trades at the 9:20 price. Skip WAIT names; don't chase stocks already 2%+ up.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/"
-  },
-  {
-   "id": "fade@2026-11-19",
-   "ts": 1795060579,
-   "title": "NSE Picks: gap-up fade: 0 stock(s) opened 3%+ higher: none. Paper shorts, bought",
-   "text": "NSE Picks - gap-up fade: 0 stock(s) opened 3%+ higher: none. Paper shorts, bought back at 3:15 PM."
-  },
-  {
-   "id": "move:Hold20:MOTILALOFS:down@2026-11-19",
-   "ts": 1795060579,
-   "title": "NSE Picks: MOTILALOFS (Hold20 list): the paper trade is down 3.6% at 09:25.",
-   "text": "NSE Picks - MOTILALOFS (Hold20 list): the paper trade is down 3.6% at 09:25."
-  },
-  {
    "id": "move:Hold20:ANGELONE:down@2026-11-19",
    "ts": 1795060579,
    "title": "NSE Picks: ANGELONE (Hold20 list): the paper trade is down 6.7% at 09:25.",
@@ -179,6 +161,24 @@
    "ts": 1795406210,
    "title": "NSE Picks: AETHER (Swing list): the paper trade is down 4.7% at 09:25.",
    "text": "NSE Picks - AETHER (Swing list): the paper trade is down 4.7% at 09:25."
+  },
+  {
+   "id": "move:Hold20:MOTILALOFS:down@2026-11-23",
+   "ts": 1795407079,
+   "title": "NSE Picks: MOTILALOFS (Hold20 list): the paper trade is down 4.0% at 09:40.",
+   "text": "NSE Picks - MOTILALOFS (Hold20 list): the paper trade is down 4.0% at 09:40."
+  },
+  {
+   "id": "move:Hold20:VIJAYA:up@2026-11-23",
+   "ts": 1795407079,
+   "title": "NSE Picks: VIJAYA (Hold20 list): the paper trade is up 3.7% at 09:40.",
+   "text": "NSE Picks - VIJAYA (Hold20 list): the paper trade is up 3.7% at 09:40."
+  },
+  {
+   "id": "move:Hold20:CRAFTSMAN:down@2026-11-23",
+   "ts": 1795407079,
+   "title": "NSE Picks: CRAFTSMAN (Hold20 list): the paper trade is down 3.6% at 09:40.",
+   "text": "NSE Picks - CRAFTSMAN (Hold20 list): the paper trade is down 3.6% at 09:40."
   }
  ]
 }
