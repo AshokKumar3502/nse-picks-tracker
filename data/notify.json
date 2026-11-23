@@ -1,12 +1,6 @@
 {
  "messages": [
   {
-   "id": "move:Swing:ETERNAL:down@2026-11-19",
-   "ts": 1795060579,
-   "title": "NSE Picks: ETERNAL (Swing list): the paper trade is down 4.5% at 09:25.",
-   "text": "NSE Picks - ETERNAL (Swing list): the paper trade is down 4.5% at 09:25."
-  },
-  {
    "id": "result@2026-11-19",
    "ts": 1795084001,
    "title": "NSE Picks: today's intraday paper result: -Rs 5,104 on 10 trades after charges.",
@@ -179,6 +173,12 @@
    "ts": 1795427765,
    "title": "NSE Picks: SUNTV (Hold20 list): the paper trade is down 3.5% at 15:25.",
    "text": "NSE Picks - SUNTV (Hold20 list): the paper trade is down 3.5% at 15:25."
+  },
+  {
+   "id": "result@2026-11-23",
+   "ts": 1795429615,
+   "title": "NSE Picks: today's intraday paper result: +Rs 2,414 on 10 trades after charges.",
+   "text": "Best TATASTEEL +Rs 2,302, worst CDSL -Rs 1,200.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/"
   }
  ]
 }
