@@ -1,18 +1,6 @@
 {
  "messages": [
   {
-   "id": "test-2026-11-18-market-open",
-   "ts": 1795024800,
-   "title": "NSE Picks",
-   "text": "Market opens tomorrow (Thu 19 Nov) at 9:15 AM. Your morning stock list arrives about 8:30 AM."
-  },
-  {
-   "id": "test:2337@2026-11-18",
-   "ts": 1795025276,
-   "title": "NSE Picks: test message: your phone alerts are working. (11:37 PM)",
-   "text": "NSE Picks - test message: your phone alerts are working. (11:37 PM)"
-  },
-  {
    "id": "morning@2026-11-19",
    "ts": 1795056980,
    "title": "NSE Picks: today's intraday lists (2026-11-19)",
@@ -143,6 +131,54 @@
    "ts": 1795405335,
    "title": "NSE Picks: today's intraday lists (2026-11-23)",
    "text": "Buy list: INDIGO (TAKE), PRESTIGE (TAKE), DIXON (TAKE), CDSL (TAKE), GLENMARK (TAKE)\nSell list: TATASTEEL, KPITTECH, SWIGGY, CUMMINSIND, COALINDIA\nPaper trades at the 9:20 price. Skip WAIT names; don't chase stocks already 2%+ up.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/\nBIG-NEWS DAY: NIFTY monthly option expiry (moved: Tuesday is a holiday). Moves can be sharp: trade smaller or skip."
+  },
+  {
+   "id": "fade@2026-11-23",
+   "ts": 1795406210,
+   "title": "NSE Picks: gap-up fade: 0 stock(s) opened 3%+ higher: none. Paper shorts, bought",
+   "text": "NSE Picks - gap-up fade: 0 stock(s) opened 3%+ higher: none. Paper shorts, bought back at 3:15 PM."
+  },
+  {
+   "id": "move:Hold20:NUVAMA:down@2026-11-23",
+   "ts": 1795406210,
+   "title": "NSE Picks: NUVAMA (Hold20 list): the paper trade is down 4.1% at 09:25.",
+   "text": "NSE Picks - NUVAMA (Hold20 list): the paper trade is down 4.1% at 09:25."
+  },
+  {
+   "id": "move:Hold20:ANGELONE:down@2026-11-23",
+   "ts": 1795406210,
+   "title": "NSE Picks: ANGELONE (Hold20 list): the paper trade is down 4.1% at 09:25.",
+   "text": "NSE Picks - ANGELONE (Hold20 list): the paper trade is down 4.1% at 09:25."
+  },
+  {
+   "id": "move:Hold20:KALYANKJIL:down@2026-11-23",
+   "ts": 1795406210,
+   "title": "NSE Picks: KALYANKJIL (Hold20 list): the paper trade is down 3.0% at 09:25.",
+   "text": "NSE Picks - KALYANKJIL (Hold20 list): the paper trade is down 3.0% at 09:25."
+  },
+  {
+   "id": "move:Swing:ETERNAL:down@2026-11-23",
+   "ts": 1795406210,
+   "title": "NSE Picks: ETERNAL (Swing list): the paper trade is down 3.2% at 09:25.",
+   "text": "NSE Picks - ETERNAL (Swing list): the paper trade is down 3.2% at 09:25."
+  },
+  {
+   "id": "move:Hold20:POONAWALLA:up@2026-11-23",
+   "ts": 1795406210,
+   "title": "NSE Picks: POONAWALLA (Hold20 list): the paper trade is up 4.0% at 09:25.",
+   "text": "NSE Picks - POONAWALLA (Hold20 list): the paper trade is up 4.0% at 09:25."
+  },
+  {
+   "id": "move:Hold20:CEMPRO:up@2026-11-23",
+   "ts": 1795406210,
+   "title": "NSE Picks: CEMPRO (Hold20 list): the paper trade is up 4.2% at 09:25.",
+   "text": "NSE Picks - CEMPRO (Hold20 list): the paper trade is up 4.2% at 09:25."
+  },
+  {
+   "id": "move:Swing:AETHER:down@2026-11-23",
+   "ts": 1795406210,
+   "title": "NSE Picks: AETHER (Swing list): the paper trade is down 4.7% at 09:25.",
+   "text": "NSE Picks - AETHER (Swing list): the paper trade is down 4.7% at 09:25."
   }
  ]
 }
