@@ -214,22 +214,18 @@ footer a{font-weight:600}
 
   // ---------------- segments: one per kind of stock
   const SEGS = [
-    {id: 'buy', name: 'Buy today', sub: 'Intraday', color: 'var(--c-buy)', types: ['Intraday'], key: 'for_day', sameDay: true,
-     plan: 'Bought at 9:20 AM (the 9:15 candle close), sold at 3:15 PM, same day.'},
-    {id: 'sell', name: 'Sell today', sub: 'Intraday short', color: 'var(--c-sell)', types: ['Short', 'Fade'], key: 'for_day', sameDay: true,
-     plan: 'Paper short: sold at 9:20 AM, bought back at 3:15 PM. Profit when the price falls.'},
-    {id: 'swing', name: 'Swing', sub: '5-10 days', color: 'var(--c-swing)', types: ['Swing'], key: 'list_date',
-     plan: 'Made after the close, bought next morning at 9:20, sold at the day 5 close (checklist) or day 10 close (tested rule).'},
+    {id: 'swing', name: 'Swing desk', sub: '10 days', color: 'var(--c-swing)', types: ['Swing'], key: 'list_date',
+     plan: 'Leading-sector stocks picked after the close, bought next morning at 9:20, sold at the day 10 close. Backtest 2020-2026: +₹27.5 lakh on 4,818 trades of ₹50,000.'},
     {id: 'results', name: 'Results jump', sub: '40 days', color: 'var(--c-res)', types: ['Results'], key: 'list_date',
-     plan: 'Stocks that jumped on quarterly results: bought next morning at 9:20, held up to 40 trading days.'},
-    {id: 'hold', name: '20-day hold', sub: 'Uptrend', color: 'var(--c-hold)', types: ['Hold20'], key: 'list_date',
-     plan: 'Uptrend stocks bought next morning at 9:20 and held 20 trading days.'},
+     plan: 'Stocks that jumped on quarterly results: bought next morning at 9:20, held 40 trading days. Backtest 2020-2026: +₹11.5 lakh on 541 trades of ₹50,000.'},
+    {id: 'sell', name: 'Gap-up fade', sub: 'Intraday short', color: 'var(--c-sell)', types: ['Fade'], key: 'for_day', sameDay: true,
+     plan: 'F&O stocks opening 3%+ higher: paper short at 9:20 AM, bought back at 3:15 PM. Backtest 2020-2026: +₹4.2 lakh on 1,516 trades of ₹50,000.'},
     {id: 'score', name: 'Scoreboard', sub: 'Which rule works', color: 'var(--c-score)'},
   ];
-  let D = null, IDX = [], cur = 'buy';
+  let D = null, IDX = [], cur = 'swing';
 
   function plOf(r) {           // final after charges, else live before charges
-    if (N(r.profit_net) !== null && (r.status === 'Done' || SEGS[0].types.includes(r.type) || ['Short', 'Fade'].includes(r.type))) return {v: N(r.profit_net), live: false};
+    if (N(r.profit_net) !== null && (r.status === 'Done' || ['Intraday', 'Short', 'Fade'].includes(r.type))) return {v: N(r.profit_net), live: false};
     if (N(r.now_pl) !== null) return {v: N(r.now_pl), live: true};
     if (N(r.profit_net) !== null) return {v: N(r.profit_net), live: false};
     return null;
@@ -307,7 +303,8 @@ footer a{font-weight:600}
     const chased = intra.filter((r) => r.chase).map((r) => r.symbol);
     if (chased.length) add('<b>Don\'t chase:</b> ' + esc(chased.join(', ')) + ' (already 2%+ up at 9:20).');
     const DT = D.dont_touch;
-    if (DT && DT.items && DT.items.length) add('<b>Don\'t touch ' + dLong(DT.for_day) + ':</b> ' + esc(DT.items.map((x) => x.symbol).join(', ')) + '.');
+    if (false && DT && DT.items && DT.items.length) add(   // intraday buy list is off since 24 Nov 2026
+'<b>Don\'t touch ' + dLong(DT.for_day) + ':</b> ' + esc(DT.items.map((x) => x.symbol).join(', ')) + '.');
     if (D.exposure && D.exposure.warn) add('<b>One sector:</b> ' + D.exposure.by_industry[0][1] + ' of ' + D.exposure.open + ' open trades are ' + esc(D.exposure.by_industry[0][0]) + '.');
     const EV = D.events || [];
     const big = EV.filter((e) => e.date === T && e.big);
@@ -352,7 +349,6 @@ footer a{font-weight:600}
       if (r && r.closed) add('So far: ' + r.closed + ' trades, ' + (r.win_pct || 0).toFixed(0) + '% made money, ' + inr(r.total_net_rs) + ' after charges. ' + (r.verdict || ''), (r.total_net_rs || 0) < 0);
     }
     if (seg.id === 'sell') {
-      add('In 2019-2026 tests, shorting weak stocks lost about 0.14% a trade even on bearish days; only the gap-up fade (stocks opening 3%+ higher) made money. Paper only.', true);
       const F = D.fade_today;
       if (F && F.for_day === T) add(F.stand_aside ? 'Gap-up fade stands aside today.' : (F.count ? F.count + ' gap-up fade ' + (F.count === 1 ? 'stock' : 'stocks') + ' today.' : 'No F&O stock opened 3%+ higher today (' + F.scanned + ' checked).') + ((F.problems || []).length ? ' ' + F.problems.join('; ') : ''), (F.problems || []).length > 0);
     }
