@@ -147,6 +147,16 @@ footer a{font-weight:600}
 @keyframes sk{to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){.skel{animation:none}.card{transition:none}}
 @media (max-width:420px){.chip{min-width:118px}.seg-head h1{font-size:18px}.total b{font-size:18px}}
+/* backtest tab */
+.btsec{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.btsec>summary{display:flex;justify-content:space-between;gap:10px;padding:12px 14px;cursor:pointer;font-size:14px}
+.btdays{display:grid;padding:0 14px 12px}
+.btday{padding:8px 0;border-top:1px solid var(--line);font-size:13px}
+.btday.quiet{opacity:.55}
+.btd{display:flex;justify-content:space-between;gap:10px}
+.btt{color:var(--muted);font-size:12.5px;margin-top:3px;line-height:1.4}
+.mutedline{color:var(--muted);font-size:12px;margin-top:12px}
+
 /* event calendar and news */
 .today .cal li.bigev b{color:var(--warn)}
 .card .why.nw{color:var(--fg);opacity:.8}
@@ -221,6 +231,7 @@ footer a{font-weight:600}
     {id: 'sell', name: 'Gap-up fade', sub: 'Intraday short', color: 'var(--c-sell)', types: ['Fade'], key: 'for_day', sameDay: true,
      plan: 'F&O stocks opening 3%+ higher: paper short at 9:20 AM, bought back at 3:15 PM. Backtest 2020-2026: +₹4.2 lakh on 1,516 trades of ₹50,000.'},
     {id: 'score', name: 'Scoreboard', sub: 'Which rule works', color: 'var(--c-score)'},
+    {id: 'bt', name: 'Backtest', sub: 'Last 6 months', color: 'var(--c-res)'},
   ];
   let D = null, IDX = [], cur = 'swing';
 
@@ -364,6 +375,7 @@ footer a{font-weight:600}
     const seg = SEGS.find((s) => s.id === cur) || SEGS[0], box = $('seg');
     box.style.setProperty('--seg', seg.color); box.replaceChildren();
     if (seg.id === 'score') return scoreboard(box, seg);
+    if (seg.id === 'bt') return backtestView(box);
     const gs = groups(seg), latest = gs[0];
     const head = el('div', 'seg-head'), h = el('h1', '', seg.name + ' · ' + seg.sub);
     head.appendChild(h);
@@ -388,6 +400,43 @@ footer a{font-weight:600}
       }
       box.appendChild(past);
     }
+  }
+  let BT = null;
+  function backtestView(box) {
+    const head = el('div', 'seg-head');
+    head.append(el('h1', '', 'Backtest · last 6 months'));
+    box.appendChild(head);
+    if (!BT) { box.appendChild(el('div', 'skel')); fetch('data/backtest.json?v=' + Date.now(), {cache: 'no-store'}).then((r) => { if (!r.ok) throw new Error(); return r.json(); }).then((d) => { BT = d; if (cur === 'bt') panel(); }).catch(() => { box.replaceChildren(head, el('div', 'note warn', 'The backtest is not available yet.')); }); return; }
+    head.appendChild(el('p', 'plan', dLong(BT.from) + ' to ' + dLong(BT.to) + ' · ' + BT.sessions + ' trading days · ₹50,000 a trade, after charges. NIFTY was above its 200-day average on ' + BT.nifty_above_200d_days + ' of them; the rules stand aside on the other days. Updated ' + BT.made + '.'));
+    const sum = el('div', 'sb');
+    for (const s of BT.strategies) {
+      const row = el('div', 'sbrow'), left = el('div');
+      left.append(el('b', '', s.name), el('div', 'v', s.trades + ' trades' + (s.running ? ' (' + s.running + ' still running)' : '') + (s.win !== null ? ' · ' + s.win + '% of finished ones won' : '')));
+      const right = el('div', 'r ' + tone(s.total)); right.append(document.createTextNode(s.trades ? inr(s.total) : '–'), el('div', 'v', s.running ? 'finished ' + inr(s.closed_total) : ''));
+      row.append(left, right); sum.appendChild(row);
+    }
+    box.appendChild(sum);
+    for (const s of BT.strategies) {
+      const sec = el('details', 'btsec'); const sm = el('summary');
+      sm.append(el('b', '', s.name + ' · day by day'), el('span', tone(s.total), s.trades ? inr(s.total) : 'no trades'));
+      sec.appendChild(sm);
+      sec.addEventListener('toggle', () => {
+        if (!sec.open || sec.children.length > 1) return;
+        const tb = el('div', 'btdays');
+        for (const d of s.days) {
+          const line = el('div', 'btday' + (d.trades.length ? '' : ' quiet'));
+          const lab = el('div', 'btd'); lab.append(el('b', '', dLong(d.date)), el('span', d.trades.length ? tone(d.pl) : 'mut', d.trades.length ? inr(d.pl) : (d.nifty_ok ? 'no stock qualified' : 'stood aside (NIFTY under its 200-day)')));
+          line.appendChild(lab);
+          for (const t of d.trades) {
+            line.appendChild(el('div', 'btt', t.s + ' · ' + (s.key === 'fade' ? 'short ' : 'bought ') + px(t.buy) + ' (' + dLong(t.buy_on) + ') → ' + (t.status === 'running' ? 'now ' : (s.key === 'fade' ? 'covered ' : 'sold ')) + px(t.sell) + ' (' + dLong(t.sell_on) + ') · ' + inr(t.pl) + (t.status === 'running' ? ' · running' : '')));
+          }
+          tb.appendChild(line);
+        }
+        sec.appendChild(tb);
+      });
+      box.appendChild(sec);
+    }
+    box.appendChild(el('p', 'mutedline', BT.note));
   }
   function scoreboard(box, seg) {
     const head = el('div', 'seg-head'); head.append(el('h1', '', 'Scoreboard'), el('p', 'plan', 'Each rule\'s real paper record since 17 Nov 2026. A verdict needs ' + ((D.scoreboard || {}).min_trades || 20) + ' finished trades.'));
