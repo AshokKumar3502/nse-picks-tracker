@@ -1,12 +1,6 @@
 {
  "messages": [
   {
-   "id": "evening@2026-11-19",
-   "ts": 1795096558,
-   "title": "NSE Picks: lists for tomorrow (made 07:25 PM)",
-   "text": "Swing 5-10 days: AETHER (TAKE), HYUNDAI (TAKE), TVSMOTOR (TAKE), UNIONBANK (TAKE)\n20-day hold: GAIL, TVSMOTOR, FLUOROCHEM, UNIONBANK, MAHABANK, WOCKPHARMA, CRAFTSMAN, ABDL, CEMPRO, KOTAKBANK\nResults jump: none\nPaper buys at 9:20 tomorrow. Not predictions, not advice.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/\nComing up 2026-11-23: NIFTY monthly option expiry (moved: Tuesday is a holiday)."
-  },
-  {
    "id": "morning@2026-11-20",
    "ts": 1795146099,
    "title": "NSE Picks: today's intraday lists (2026-11-20)",
@@ -179,6 +173,12 @@
    "ts": 1795441927,
    "title": "NSE Picks: lists for tomorrow (made 07:22 PM)",
    "text": "Swing 5-10 days: IREDA, KALYANKJIL, LICHSGFIN, ABCAPITAL, HDFCAMC\n20-day hold: KALYANKJIL, LGEINDIA, COFORGE, HONASA, VIJAYA, PERSISTENT, DIVISLAB, MANKIND, CEMPRO, LICHSGFIN\nResults jump: none\nPaper buys at 9:20 tomorrow. Not predictions, not advice.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/"
+  },
+  {
+   "id": "fade@2026-11-25",
+   "ts": 1795578980,
+   "title": "NSE Picks: gap-up fade: 5 stock(s) opened 3%+ higher: POLICYBZR, MFSL, LTF, INFY",
+   "text": "NSE Picks - gap-up fade: 5 stock(s) opened 3%+ higher: POLICYBZR, MFSL, LTF, INFY, LAURUSLABS. Paper shorts, bought back at 3:15 PM."
   }
  ]
 }
