@@ -1,12 +1,6 @@
 {
  "messages": [
   {
-   "id": "morning@2026-11-20",
-   "ts": 1795146099,
-   "title": "NSE Picks: today's intraday lists (2026-11-20)",
-   "text": "Buy list: DELHIVERY (TAKE), DIXON (TAKE), TVSMOTOR (TAKE), UNIONBANK (TAKE), CDSL (TAKE)\nSell list: INFY, CUMMINSIND, COALINDIA, VEDL, MUTHOOTFIN\nPaper trades at the 9:20 price. Skip WAIT names; don't chase stocks already 2%+ up.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/"
-  },
-  {
    "id": "fade@2026-11-20",
    "ts": 1795146979,
    "title": "NSE Picks: gap-up fade: 0 stock(s) opened 3%+ higher: none. Paper shorts, bought",
@@ -179,6 +173,12 @@
    "ts": 1795578980,
    "title": "NSE Picks: gap-up fade: 5 stock(s) opened 3%+ higher: POLICYBZR, MFSL, LTF, INFY",
    "text": "NSE Picks - gap-up fade: 5 stock(s) opened 3%+ higher: POLICYBZR, MFSL, LTF, INFY, LAURUSLABS. Paper shorts, bought back at 3:15 PM."
+  },
+  {
+   "id": "result@2026-11-25",
+   "ts": 1795602397,
+   "title": "NSE Picks: today's intraday paper result: +Rs 3,060 on 5 trades after charges.",
+   "text": "Best MFSL +Rs 1,962, worst LAURUSLABS -Rs 1,469.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/"
   }
  ]
 }
