@@ -1,12 +1,6 @@
 {
  "messages": [
   {
-   "id": "move:Hold20:KALYANKJIL:down@2026-11-20",
-   "ts": 1795146979,
-   "title": "NSE Picks: KALYANKJIL (Hold20 list): the paper trade is down 6.7% at 09:25.",
-   "text": "NSE Picks - KALYANKJIL (Hold20 list): the paper trade is down 6.7% at 09:25."
-  },
-  {
    "id": "move:Swing:ETERNAL:down@2026-11-20",
    "ts": 1795146979,
    "title": "NSE Picks: ETERNAL (Swing list): the paper trade is down 3.6% at 09:25.",
@@ -179,6 +173,12 @@
    "ts": 1795681542,
    "title": "NSE Picks: LICHSGFIN (Swing list): the paper trade is down 3.1% at 13:55.",
    "text": "NSE Picks - LICHSGFIN (Swing list): the paper trade is down 3.1% at 13:55."
+  },
+  {
+   "id": "result@2026-11-26",
+   "ts": 1795688807,
+   "title": "NSE Picks: today's intraday paper result: +Rs 1,488 on 1 trades after charges.",
+   "text": "Best ENRIN +Rs 1,488, worst ENRIN +Rs 1,488.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/"
   }
  ]
 }
