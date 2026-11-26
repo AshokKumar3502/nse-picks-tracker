@@ -1,18 +1,6 @@
 {
  "messages": [
   {
-   "id": "move:Hold20:MOTILALOFS:down@2026-11-20",
-   "ts": 1795146979,
-   "title": "NSE Picks: MOTILALOFS (Hold20 list): the paper trade is down 3.1% at 09:25.",
-   "text": "NSE Picks - MOTILALOFS (Hold20 list): the paper trade is down 3.1% at 09:25."
-  },
-  {
-   "id": "move:Hold20:NUVAMA:down@2026-11-20",
-   "ts": 1795146979,
-   "title": "NSE Picks: NUVAMA (Hold20 list): the paper trade is down 3.5% at 09:25.",
-   "text": "NSE Picks - NUVAMA (Hold20 list): the paper trade is down 3.5% at 09:25."
-  },
-  {
    "id": "move:Hold20:ANGELONE:down@2026-11-20",
    "ts": 1795146979,
    "title": "NSE Picks: ANGELONE (Hold20 list): the paper trade is down 5.8% at 09:25.",
@@ -179,6 +167,18 @@
    "ts": 1795614376,
    "title": "NSE Picks: lists for tomorrow (made 07:16 PM)",
    "text": "Swing desk rule (10 days): KALYANKJIL, UNITDSPR, ABDL, ITC, HINDUNILVR\nResults jump (40 days): none\nPaper buys at 9:20 tomorrow. Not predictions, not advice.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/\nComing up 2026-12-01: NIFTY weekly option expiry."
+  },
+  {
+   "id": "fade@2026-11-26",
+   "ts": 1795665374,
+   "title": "NSE Picks: gap-up fade: 1 stock(s) opened 3%+ higher: ENRIN. Paper shorts, bough",
+   "text": "NSE Picks - gap-up fade: 1 stock(s) opened 3%+ higher: ENRIN. Paper shorts, bought back at 3:15 PM."
+  },
+  {
+   "id": "move:Swing:IREDA:down@2026-11-26",
+   "ts": 1795665374,
+   "title": "NSE Picks: IREDA (Swing list): the paper trade is down 5.0% at 09:25.",
+   "text": "NSE Picks - IREDA (Swing list): the paper trade is down 5.0% at 09:25."
   }
  ]
 }
