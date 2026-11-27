@@ -1,12 +1,6 @@
 {
  "messages": [
   {
-   "id": "move:Hold20:POONAWALLA:up@2026-11-20",
-   "ts": 1795161358,
-   "title": "NSE Picks: POONAWALLA (Hold20 list): the paper trade is up 3.2% at 13:25.",
-   "text": "NSE Picks - POONAWALLA (Hold20 list): the paper trade is up 3.2% at 13:25."
-  },
-  {
    "id": "result@2026-11-20",
    "ts": 1795170403,
    "title": "NSE Picks: today's intraday paper result: +Rs 1,849 on 10 trades after charges.",
@@ -179,6 +173,12 @@
    "ts": 1795757148,
    "title": "NSE Picks: ABCAPITAL (Swing list): the paper trade is down 3.1% at 10:55.",
    "text": "NSE Picks - ABCAPITAL (Swing list): the paper trade is down 3.1% at 10:55."
+  },
+  {
+   "id": "move:Swing:IREDA:down@2026-11-27",
+   "ts": 1795768848,
+   "title": "NSE Picks: IREDA (Swing list): the paper trade is down 3.1% at 14:10.",
+   "text": "NSE Picks - IREDA (Swing list): the paper trade is down 3.1% at 14:10."
   }
  ]
 }
