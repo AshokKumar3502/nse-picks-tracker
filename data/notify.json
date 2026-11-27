@@ -1,12 +1,6 @@
 {
  "messages": [
   {
-   "id": "result@2026-11-20",
-   "ts": 1795170403,
-   "title": "NSE Picks: today's intraday paper result: +Rs 1,849 on 10 trades after charges.",
-   "text": "Best UNIONBANK +Rs 2,300, worst VEDL -Rs 685.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/"
-  },
-  {
    "id": "evening@2026-11-20",
    "ts": 1795182956,
    "title": "NSE Picks: lists for tomorrow (made 07:25 PM)",
@@ -179,6 +173,12 @@
    "ts": 1795768848,
    "title": "NSE Picks: IREDA (Swing list): the paper trade is down 3.1% at 14:10.",
    "text": "NSE Picks - IREDA (Swing list): the paper trade is down 3.1% at 14:10."
+  },
+  {
+   "id": "move:Swing:ABDL:up@2026-11-27",
+   "ts": 1795772445,
+   "title": "NSE Picks: ABDL (Swing list): the paper trade is up 3.2% at 15:10.",
+   "text": "NSE Picks - ABDL (Swing list): the paper trade is up 3.2% at 15:10."
   }
  ]
 }
