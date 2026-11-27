@@ -1,12 +1,6 @@
 {
  "messages": [
   {
-   "id": "move:Hold20:UNIONBANK:up@2026-11-20",
-   "ts": 1795152360,
-   "title": "NSE Picks: UNIONBANK (Hold20 list): the paper trade is up 3.1% at 10:55.",
-   "text": "NSE Picks - UNIONBANK (Hold20 list): the paper trade is up 3.1% at 10:55."
-  },
-  {
    "id": "move:Swing:UNIONBANK:up@2026-11-20",
    "ts": 1795153259,
    "title": "NSE Picks: UNIONBANK (Swing list): the paper trade is up 3.1% at 11:10.",
@@ -179,6 +173,12 @@
    "ts": 1795700707,
    "title": "NSE Picks: lists for tomorrow (made 07:15 PM)",
    "text": "Swing desk rule (10 days): none\nResults jump (40 days): none\nPaper buys at 9:20 tomorrow. Not predictions, not advice.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/\nComing up 2026-12-01: NIFTY weekly option expiry."
+  },
+  {
+   "id": "fade@2026-11-27",
+   "ts": 1795751772,
+   "title": "NSE Picks: gap-up fade: 0 stock(s) opened 3%+ higher: none. Paper shorts, bought",
+   "text": "NSE Picks - gap-up fade: 0 stock(s) opened 3%+ higher: none. Paper shorts, bought back at 3:15 PM."
   }
  ]
 }
