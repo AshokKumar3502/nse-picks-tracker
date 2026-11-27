@@ -1,12 +1,6 @@
 {
  "messages": [
   {
-   "id": "evening@2026-11-20",
-   "ts": 1795182956,
-   "title": "NSE Picks: lists for tomorrow (made 07:25 PM)",
-   "text": "Swing 5-10 days: LGEINDIA (TAKE)\n20-day hold: CUB, SANSERA, KALYANKJIL, LICHSGFIN, INDHOTEL, LGEINDIA, PHOENIXLTD, DLF, APOLLOHOSP, BHARTIARTL\nResults jump: none\nPaper buys at 9:20 tomorrow. Not predictions, not advice.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/\nComing up 2026-11-23: NIFTY monthly option expiry (moved: Tuesday is a holiday)."
-  },
-  {
    "id": "morning@2026-11-23",
    "ts": 1795405335,
    "title": "NSE Picks: today's intraday lists (2026-11-23)",
@@ -179,6 +173,12 @@
    "ts": 1795772445,
    "title": "NSE Picks: ABDL (Swing list): the paper trade is up 3.2% at 15:10.",
    "text": "NSE Picks - ABDL (Swing list): the paper trade is up 3.2% at 15:10."
+  },
+  {
+   "id": "evening@2026-11-27",
+   "ts": 1795787178,
+   "title": "NSE Picks: lists for tomorrow (made 07:16 PM)",
+   "text": "Swing desk rule (10 days): LODHA, OBEROIRLTY\nResults jump (40 days): none\nPaper buys at 9:20 tomorrow. Not predictions, not advice.\nhttps://ashokkumar3502.github.io/nse-picks-tracker/\nComing up 2026-12-01: NIFTY weekly option expiry."
   }
  ]
 }
